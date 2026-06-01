@@ -306,6 +306,113 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 .emoji-big{font-size:56px;display:block;margin-bottom:14px;animation:bounceIn .6s ease}
 .loading-state{text-align:center;padding:3rem;color:var(--muted)}
 .loading-state .spin{font-size:40px;margin-bottom:12px;animation:pulse 1.2s ease infinite;display:block}
+
+/* ── COLLAPSIBLE OTHER TASKS ── */
+#other-card .table-head:hover{background:var(--surface2)}
+#other-card .table-head:hover #other-chevron{color:var(--accent)}
+#other-body{transition:opacity .25s ease}
+#other-body.open{display:block;animation:fadeUp .2s ease}
+
+/* ══════════════════════════════════════
+   MOBILE — bottom nav + card layout
+══════════════════════════════════════ */
+
+/* Mobile bottom nav */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:200;padding:8px 0 max(8px,env(safe-area-inset-bottom));box-shadow:0 -4px 20px rgba(0,0,0,.08)}
+.mobile-nav-inner{display:flex;justify-content:space-around;align-items:center}
+.mnav-btn{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border-radius:10px;color:var(--dim);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;transition:color .15s,background .15s;min-width:56px}
+.mnav-btn .mnav-icon{font-size:20px;line-height:1}
+.mnav-btn.active{color:var(--accent)}
+.mnav-btn:active{background:var(--surface2)}
+
+/* Mobile FAB */
+.fab{display:none;position:fixed;bottom:calc(72px + max(8px,env(safe-area-inset-bottom)));right:20px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));color:#fff;border:none;font-size:26px;cursor:pointer;box-shadow:0 4px 20px rgba(59,91,219,.4);z-index:201;transition:transform .2s,box-shadow .2s;align-items:center;justify-content:center}
+.fab:active{transform:scale(.92)}
+
+@media(max-width:768px){
+  /* show mobile nav & fab */
+  .mobile-nav{display:block}
+  .fab{display:flex}
+
+  /* add bottom padding so content clears nav */
+  .content{padding:16px;padding-bottom:90px}
+  .bottom-bar{padding:0 16px 90px;flex-wrap:wrap}
+
+  /* topbar mobile */
+  .topbar{padding:10px 16px;gap:8px}
+  .topbar-text h1{font-size:15px}
+  .topbar-text .breadcrumb{display:none}
+  .topbar-right .theme-toggle{display:none} /* moved to mobile nav */
+  .topbar-right .pill-capture{display:none} /* FAB replaces this */
+  .topbar-right .btn-primary{display:none}  /* FAB replaces + Add */
+
+  /* subbar scrolls horizontally */
+  .subbar{padding:8px 16px;overflow-x:auto;flex-wrap:nowrap;gap:8px;scrollbar-width:none}
+  .subbar::-webkit-scrollbar{display:none}
+  .subbar .info{white-space:nowrap;font-size:12px}
+  .progress-wrap{flex-shrink:0}
+  .progress-bar{width:80px}
+
+  /* stat cards — 2x2 grid */
+  .stat-row{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .stat-card{padding:14px 16px}
+  .stat-card .stat-value{font-size:22px}
+
+  /* table → card layout on mobile */
+  table,thead,tbody,th,td,tr{display:block}
+  thead tr{position:absolute;top:-9999px;left:-9999px}
+  tbody tr{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;padding:14px;position:relative;animation:rowIn .25s ease both}
+  tbody tr.subtask-row{margin-left:16px;border-style:dashed;padding:10px 14px}
+  tbody td{border:none;padding:4px 0;font-size:14px}
+  tbody td:empty{display:none}
+
+  /* mobile card — task name big */
+  tbody td:nth-child(2){font-size:15px;font-weight:700;padding-bottom:8px;color:var(--text)}
+  /* status row */
+  tbody td:nth-child(3){margin-bottom:6px}
+  /* meta row — est, level, type, date inline */
+  tbody td:nth-child(4),tbody td:nth-child(5),tbody td:nth-child(6),tbody td:nth-child(7){display:inline-block;margin-right:8px;padding:0}
+  /* actions row */
+  tbody td:nth-child(8){padding-top:10px;border-top:1px solid var(--border2);margin-top:6px}
+  /* checkbox positioned top-right */
+  tbody td:nth-child(1){position:absolute;top:14px;right:14px}
+
+  .stat-sel{min-width:100px;font-size:12px}
+  .search-inp{width:100%}
+  .table-head{flex-wrap:wrap;gap:8px;padding:12px 14px}
+  .table-head .search-inp{width:100%;order:3}
+
+  /* welcome screen */
+  #welcome{padding:2.5rem 1.5rem}
+  #welcome h1{font-size:clamp(28px,8vw,44px);letter-spacing:-1px}
+  #welcome p{font-size:15px}
+  #welcome .welcome-btns{flex-direction:column;align-items:stretch}
+  #welcome .welcome-btns button{width:100%}
+
+  /* mood screen */
+  #mood{padding:1.5rem 1.25rem 6rem}
+  #mood h2{font-size:26px}
+  .mood-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .fuel-grid{gap:8px}
+
+  /* modals full-screen on mobile */
+  .overlay{align-items:flex-end}
+  .modal{width:100%;border-radius:20px 20px 0 0;max-height:92vh;padding:1.5rem 1.25rem}
+  .modal-wide{width:100%}
+  .form-grid{grid-template-columns:1fr}
+
+  /* focus mode */
+  .focus-card{padding:2rem 1.5rem}
+  .focus-card h2{font-size:20px}
+  .focus-card .focus-actions{flex-direction:column}
+  .focus-card .focus-actions button{width:100%}
+  .exit-btn{top:16px;right:16px}
+}
+
+@media(max-width:400px){
+  .stat-row{grid-template-columns:1fr 1fr}
+  .stat-card .stat-value{font-size:20px}
+}
 </style>
 </head>
 <body data-theme="light">
@@ -344,7 +451,7 @@ textarea.form-inp{resize:vertical;line-height:1.65}
       <button class="tag-btn" onclick="selectMood(this,'Burned out')">🤯 Burned out</button>
       <button class="tag-btn" onclick="selectMood(this,'Overwhelmed')">😵 Overwhelmed</button>
       <button class="tag-btn" onclick="selectMood(this,'Angry')">😤 Angry</button>
-      <button class="tag-btn" style="border-style:dashed">+ Add Your Mood</button>
+      <button class="tag-btn" style="border-style:dashed" onclick="openAddMoodModal('mood-grid')">+ Add Your Mood</button>
     </div>
     <button class="btn-primary btn-pill" id="lets-flow-btn" disabled onclick="goMain()">Let's Flow →</button>
   </div>
@@ -417,15 +524,21 @@ textarea.form-inp{resize:vertical;line-height:1.65}
       </tr></thead><tbody id="today-tbody"></tbody></table>
     </div>
 
-    <div class="table-card">
-      <div class="table-head">
+    <div class="table-card" id="other-card">
+      <div class="table-head" onclick="toggleOther()" style="cursor:pointer;user-select:none">
         <span class="table-title">Other Tasks</span>
         <span class="count-badge" id="other-count">3</span>
+        <span id="other-hint" style="margin-left:8px;font-size:12px;color:var(--dim);font-weight:500">Click to expand</span>
+        <div style="margin-left:auto">
+          <span id="other-chevron" style="font-size:16px;color:var(--dim);transition:transform .3s;display:inline-block">▸</span>
+        </div>
       </div>
-      <table><thead><tr>
-        <th style="width:36px"></th><th>Task Name</th><th>Status</th>
-        <th>Est.</th><th>Level</th><th>Type</th><th>Date</th><th style="width:230px"></th>
-      </tr></thead><tbody id="other-tbody"></tbody></table>
+      <div id="other-body" style="display:none;overflow:hidden">
+        <table><thead><tr>
+          <th style="width:36px"></th><th>Task Name</th><th>Status</th>
+          <th>Est.</th><th>Level</th><th>Type</th><th>Date</th><th style="width:230px"></th>
+        </tr></thead><tbody id="other-tbody"></tbody></table>
+      </div>
     </div>
   </div>
 
@@ -559,6 +672,7 @@ textarea.form-inp{resize:vertical;line-height:1.65}
       <button class="tag-btn" onclick="selectMoodUpdate(this,'Burned out')">🤯 Burned out</button>
       <button class="tag-btn" onclick="selectMoodUpdate(this,'Overwhelmed')">😵 Overwhelmed</button>
       <button class="tag-btn" onclick="selectMoodUpdate(this,'Angry')">😤 Angry</button>
+      <button class="tag-btn" style="border-style:dashed" onclick="openAddMoodModal('mood-update-grid')">+ Add your own</button>
     </div>
     <div class="flex-end">
       <button class="btn-ghost" onclick="closeModal('mood-modal')">Cancel</button>
@@ -669,6 +783,54 @@ textarea.form-inp{resize:vertical;line-height:1.65}
   <button class="ctx-item" onclick="ctxNotForNow()">⏸ Not For Now</button>
   <div class="ctx-sep"></div>
   <button class="ctx-item danger" onclick="ctxDelete()">🗑 Delete</button>
+</div>
+
+<!-- ══ MOBILE FAB ══ -->
+<button class="fab" onclick="openAddTask()" title="Add Task">+</button>
+
+<!-- ══ MOBILE BOTTOM NAV ══ -->
+<nav class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <button class="mnav-btn active" id="mnav-home" onclick="mnavGo('home')">
+      <span class="mnav-icon">📋</span>Tasks
+    </button>
+    <button class="mnav-btn" id="mnav-brain" onclick="openBrainDump()">
+      <span class="mnav-icon">🧠</span>Brain
+    </button>
+    <button class="mnav-btn" id="mnav-snack" onclick="openTaskSnack()">
+      <span class="mnav-icon">⚡</span>Snack
+    </button>
+    <button class="mnav-btn" id="mnav-mood" onclick="openMoodUpdate()">
+      <span class="mnav-icon">😊</span>Mood
+    </button>
+    <button class="mnav-btn" id="mnav-theme" onclick="toggleThemeMobile()">
+      <span class="mnav-icon" id="mnav-theme-icon">🌙</span>Theme
+    </button>
+  </div>
+</nav>
+
+<!-- ══ MODAL: ADD YOUR MOOD ══ -->
+<div class="overlay hidden" id="add-mood-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-hdr-text"><h2>➕ Add Your Mood</h2><p>Give your mood a name and an emoji.</p></div>
+      <button class="close-btn" onclick="closeModal('add-mood-modal')">✕</button>
+    </div>
+    <div class="form-section">
+      <div>
+        <label class="form-label">Emoji</label>
+        <input class="form-inp" id="custom-mood-emoji" placeholder="e.g. 🥱" maxlength="4" style="font-size:22px;text-align:center">
+      </div>
+      <div>
+        <label class="form-label">Mood name</label>
+        <input class="form-inp accent-border" id="custom-mood-name" placeholder="e.g. Sleepy" oninput="checkCustomMood()">
+      </div>
+      <div class="flex-end">
+        <button class="btn-ghost" onclick="closeModal('add-mood-modal')">Cancel</button>
+        <button class="btn-primary" id="save-custom-mood-btn" disabled onclick="saveCustomMood()">Add Mood</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1176,6 +1338,74 @@ document.getElementById('capture-overlay').addEventListener('click',e=>{if(e.tar
 document.addEventListener('click',e=>{
   if(!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-menu').forEach(m=>m.classList.add('hidden'));
 });
+
+/* ══ COLLAPSIBLE OTHER TASKS ══ */
+let otherOpen = false;
+function toggleOther(){
+  otherOpen = !otherOpen;
+  const body = document.getElementById('other-body');
+  const chevron = document.getElementById('other-chevron');
+  const hint = document.getElementById('other-hint');
+  if(otherOpen){
+    body.style.display = 'block';
+    body.classList.add('open');
+    chevron.style.transform = 'rotate(90deg)';
+    chevron.style.color = 'var(--accent)';
+    hint.textContent = 'Click to collapse';
+  } else {
+    body.style.display = 'none';
+    body.classList.remove('open');
+    chevron.style.transform = 'rotate(0deg)';
+    chevron.style.color = '';
+    hint.textContent = 'Click to expand';
+  }
+}
+
+/* ══ MOBILE NAV ══ */
+function mnavGo(tab){
+  document.querySelectorAll('.mnav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mnav-'+tab)?.classList.add('active');
+}
+function toggleThemeMobile(){
+  toggleTheme();
+  document.getElementById('mnav-theme-icon').textContent=isDark?'☀️':'🌙';
+}
+
+/* ══ ADD YOUR MOOD ══ */
+let _addMoodTargetGrid=null;
+function openAddMoodModal(gridId){
+  _addMoodTargetGrid=gridId;
+  document.getElementById('custom-mood-emoji').value='';
+  document.getElementById('custom-mood-name').value='';
+  document.getElementById('save-custom-mood-btn').disabled=true;
+  openModal('add-mood-modal');
+  setTimeout(()=>document.getElementById('custom-mood-emoji').focus(),120);
+}
+function checkCustomMood(){
+  document.getElementById('save-custom-mood-btn').disabled=!document.getElementById('custom-mood-name').value.trim();
+}
+function saveCustomMood(){
+  const emoji=document.getElementById('custom-mood-emoji').value.trim()||'😶';
+  const name=document.getElementById('custom-mood-name').value.trim();
+  if(!name) return;
+  const label=`${emoji} ${name}`;
+  const grid=document.getElementById(_addMoodTargetGrid);
+  if(grid){
+    // insert before the last "+ Add" button
+    const addBtn=grid.querySelector('[style*="dashed"]');
+    const btn=document.createElement('button');
+    btn.className='tag-btn anim-popin';
+    if(_addMoodTargetGrid==='mood-grid'){
+      btn.setAttribute('onclick',`selectMood(this,'${name}')`);
+    } else {
+      btn.setAttribute('onclick',`selectMoodUpdate(this,'${name}')`);
+    }
+    btn.textContent=label;
+    grid.insertBefore(btn,addBtn);
+  }
+  closeModal('add-mood-modal');
+  toast(`Mood "${name}" added 😊`);
+}
 
 /* ══ INIT ══ */
 updatePomoDisplay();
