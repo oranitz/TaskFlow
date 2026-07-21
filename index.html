@@ -98,8 +98,6 @@ tbody tr:nth-child(8){animation-delay:.24s}
 .auth-sub{font-size:16px;color:var(--muted);text-align:center;margin-bottom:1.75rem;line-height:1.6}
 .auth-error{background:var(--red-bg);color:var(--red);border:1px solid var(--red);border-radius:10px;padding:10px 14px;font-size:15px;font-weight:600;margin-bottom:1.25rem;animation:fadeUp .2s ease}
 .auth-error.hidden{display:none}
-.auth-divider{display:flex;align-items:center;gap:10px;margin:.5rem 0;color:var(--dim);font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
 .auth-switch{text-align:center;font-size:15px;color:var(--muted);margin-top:1.5rem}
 .auth-switch button{background:none;border:none;color:var(--accent);font-weight:700;cursor:pointer;font-size:15px;padding:0 4px;font-family:inherit}
 .auth-switch button:hover{text-decoration:underline}
@@ -189,7 +187,7 @@ tbody tr:nth-child(8){animation-delay:.24s}
 
 /* ── TABLE CARD ── */
 .table-card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);overflow:hidden;margin-bottom:20px;box-shadow:var(--sh-sm);animation:fadeUp .4s .15s ease both}
-.table-head{padding:16px 20px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:10px;background:var(--surface)}
+.table-head{padding:16px 20px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:10px;background:var(--surface);flex-wrap:wrap}
 .table-title{font-weight:800;font-size:18px;color:var(--text);letter-spacing:-.2px}
 .count-badge{background:var(--surface3);color:var(--muted);border-radius:50px;padding:3px 11px;font-size:14px;font-weight:700;border:1px solid var(--border);transition:background .2s,color .2s}
 .search-inp{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;font-size:15px;color:var(--text);outline:none;width:180px;transition:border-color .15s,width .25s ease,box-shadow .15s;margin-left:auto}
@@ -396,6 +394,47 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 #other-body{transition:opacity .25s ease}
 #other-body.open{display:block;animation:fadeUp .2s ease}
 
+/* ── SELECT MODE ── */
+.select-btn{
+  display:flex;align-items:center;gap:6px;
+  background:var(--surface2);color:var(--muted);
+  border:1px solid var(--border);border-radius:8px;
+  padding:6px 14px;font-size:14px;font-weight:700;
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.select-btn:hover{background:var(--accent-bg);color:var(--accent);border-color:var(--accent)}
+.select-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.select-all-cb{width:16px;height:16px;cursor:pointer;accent-color:var(--accent)}
+.select-all-cb.hidden{display:none}
+
+.bulk-bar{
+  display:flex;align-items:center;gap:16px;
+  background:var(--text);color:var(--bg);
+  border-radius:14px;padding:14px 20px;
+  margin-bottom:16px;box-shadow:var(--sh-lg);
+  animation:slideUp .25s cubic-bezier(.34,1.2,.64,1);
+  flex-wrap:wrap;
+}
+.bulk-bar.hidden{display:none}
+.bulk-count{font-size:15px;font-weight:700;white-space:nowrap}
+.bulk-actions{display:flex;gap:8px;flex-wrap:wrap;flex:1}
+.bulk-btn{
+  background:rgba(255,255,255,.12);color:inherit;
+  border:1px solid rgba(255,255,255,.2);border-radius:8px;
+  padding:7px 14px;font-size:14px;font-weight:600;
+  cursor:pointer;transition:background .15s;white-space:nowrap;
+}
+.bulk-btn:hover{background:rgba(255,255,255,.22)}
+.bulk-btn.danger{color:#fca5a5}
+.bulk-btn.danger:hover{background:rgba(248,113,113,.2)}
+.bulk-cancel{
+  background:none;border:none;color:inherit;opacity:.7;
+  cursor:pointer;font-size:14px;font-weight:600;padding:7px 10px;
+}
+.bulk-cancel:hover{opacity:1}
+.select-row-cb{width:18px;height:18px;cursor:pointer;accent-color:var(--accent)}
+tr.row-selected td{background:var(--accent-bg)!important}
+
 /* ══════════════════════════════════════
    MOBILE — bottom nav + card layout
 ══════════════════════════════════════ */
@@ -540,13 +579,6 @@ textarea.form-inp{resize:vertical;line-height:1.65}
         <input class="form-inp" id="auth-password" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleAuthSubmit()">
       </div>
       <button class="btn-primary" id="auth-submit-btn" style="width:100%;padding:13px;font-size:17px" onclick="handleAuthSubmit()">Sign In</button>
-
-      <div class="auth-divider"><span>or</span></div>
-
-      <button class="btn-ghost" style="width:100%;padding:12px;display:flex;align-items:center;justify-content:center;gap:10px" onclick="signInWithGoogle()">
-        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.259h2.908c1.702-1.567 2.684-3.874 2.684-6.617z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 16.017 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 1.983.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
-        Continue with Google
-      </button>
     </div>
 
     <p class="auth-switch">
@@ -655,6 +687,18 @@ textarea.form-inp{resize:vertical;line-height:1.65}
       </div>
     </div>
 
+    <!-- Bulk action bar (shown when Select mode is active) -->
+    <div class="bulk-bar hidden" id="bulk-bar">
+      <span class="bulk-count" id="bulk-count">0 selected</span>
+      <div class="bulk-actions">
+        <button class="bulk-btn" onclick="bulkMarkDone()">✓ Mark Done</button>
+        <button class="bulk-btn" onclick="bulkMoveToOther()">⏸ Move to Other</button>
+        <button class="bulk-btn" onclick="bulkDuplicate()">📋 Duplicate</button>
+        <button class="bulk-btn danger" onclick="bulkDelete()">🗑 Delete</button>
+      </div>
+      <button class="bulk-cancel" onclick="exitSelectMode()">✕ Cancel</button>
+    </div>
+
     <div class="table-card">
       <div class="table-head">
         <span class="table-title">Today Focus</span>
@@ -662,11 +706,14 @@ textarea.form-inp{resize:vertical;line-height:1.65}
         <button class="sort-btn" id="smart-sort-btn" onclick="smartSort()" title="AI sorts your tasks by what to do first">
           <span id="sort-btn-icon">✨</span> Smart Sort
         </button>
+        <button class="select-btn" id="select-mode-btn" onclick="toggleSelectMode()" title="Select multiple tasks for bulk actions">
+          ☑️ Select
+        </button>
         <input class="search-inp" placeholder="🔍 Search tasks…" oninput="filterTasks(this,'today')">
       </div>
       <div class="table-scroll">
       <table><thead><tr>
-        <th style="width:36px"></th><th>Task Name</th><th>Status</th>
+        <th style="width:36px"><input type="checkbox" id="select-all-today" class="select-all-cb hidden" onchange="toggleSelectAll('today',this.checked)"></th><th>Task Name</th><th>Status</th>
         <th>Est.</th><th>Level</th><th>Type</th><th>Date</th><th style="width:230px"></th>
       </tr></thead><tbody id="today-tbody"></tbody></table>
       </div>
@@ -684,7 +731,7 @@ textarea.form-inp{resize:vertical;line-height:1.65}
       <div id="other-body" style="display:none;overflow:hidden">
         <div class="table-scroll">
         <table><thead><tr>
-          <th style="width:36px"></th><th>Task Name</th><th>Status</th>
+          <th style="width:36px"><input type="checkbox" id="select-all-other" class="select-all-cb hidden" onchange="toggleSelectAll('other',this.checked)" onclick="event.stopPropagation()"></th><th>Task Name</th><th>Status</th>
           <th>Est.</th><th>Level</th><th>Type</th><th>Date</th><th style="width:230px"></th>
         </tr></thead><tbody id="other-tbody"></tbody></table>
         </div>
@@ -1009,6 +1056,8 @@ let selectedFuel=null, selectedMood=null;
 let tempFuel=null, tempMood=null;
 let editingTaskId=null, selectedLevel=null;
 let ctxTaskId=null, snackTaskId=null, breakdownTaskId=null, focusTaskId=null;
+let selectMode=false;
+let selectedIds=new Set();
 let pomInterval=null, pomSecs=25*60, pomRunning=false;
 let isDark=false;
 let authMode='signin'; // 'signin' | 'signup'
@@ -1142,12 +1191,6 @@ function handleAuthSubmit(){
       btn.textContent = authMode==='signup' ? 'Create Account' : 'Sign In';
     });
 }
-function signInWithGoogle(){
-  hideAuthError();
-  const provider=new firebase.auth.GoogleAuthProvider();
-  // redirect flow is far more reliable than popup across browsers/PWAs/in-app webviews
-  auth.signInWithRedirect(provider).catch(err=>showAuthError(friendlyAuthError(err)));
-}
 function continueAsGuest(){
   hideAuthError();
   auth.signInAnonymously().catch(err=>showAuthError(friendlyAuthError(err)));
@@ -1166,20 +1209,10 @@ function friendlyAuthError(err){
     'auth/user-not-found':'No account found with that email.',
     'auth/wrong-password':'Incorrect password.',
     'auth/invalid-credential':'Incorrect email or password.',
-    'auth/popup-closed-by-user':'Google sign-in was closed before finishing.',
     'auth/network-request-failed':'Network error — check your connection.'
   };
   return map[err.code] || err.message || 'Something went wrong. Please try again.';
 }
-
-/* ══ HANDLE GOOGLE REDIRECT RESULT (on page load, after returning from Google) ══ */
-auth.getRedirectResult().then((result)=>{
-  if(result && result.user){
-    toast('Signed in with Google! 🎉');
-  }
-}).catch((err)=>{
-  showAuthError(friendlyAuthError(err));
-});
 
 /* ══ AUTH STATE LISTENER — drives the whole app flow ══ */
 auth.onAuthStateChanged(async (user)=>{
@@ -1379,8 +1412,11 @@ function ssel(id,val){
 }
 function renderRow(t){
   const done=t.status==='Done';
-  return`<tr id="row-${t.id}" class="${done?'row-done':''}">
-    <td><input type="checkbox" ${done?'checked':''} onchange="toggleDone(${t.id},this.checked)" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)"></td>
+  const checkboxHtml = selectMode
+    ? `<input type="checkbox" class="select-row-cb" ${selectedIds.has(t.id)?'checked':''} onchange="toggleTaskSelection(${t.id},this.checked)">`
+    : `<input type="checkbox" ${done?'checked':''} onchange="toggleDone(${t.id},this.checked)" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)">`;
+  return`<tr id="row-${t.id}" class="${done?'row-done':''}${selectedIds.has(t.id)?' row-selected':''}">
+    <td>${checkboxHtml}</td>
     <td><span class="task-name${done?' done':''}">${t.critical?'🔥 ':''}${t.name}</span></td>
     <td>${ssel(t.id,t.status)}</td>
     <td style="font-size:15px;color:var(--dim);font-weight:600">${t.est}</td>
@@ -1418,7 +1454,80 @@ function renderTables(){
   document.querySelectorAll('.stat-sel').forEach(sel=>{
     sel.addEventListener('change',function(){this.className='stat-sel '+scls(this.value);});
   });
+  // prune selectedIds of tasks that no longer exist, then refresh bulk bar
+  const validIds=new Set(tasks.map(t=>t.id));
+  selectedIds.forEach(id=>{ if(!validIds.has(id)) selectedIds.delete(id); });
+  updateBulkBar();
   saveState();
+}
+
+/* ══ SELECT MODE / BULK ACTIONS ══ */
+function toggleSelectMode(){
+  selectMode=!selectMode;
+  selectedIds.clear();
+  const btn=document.getElementById('select-mode-btn');
+  btn.classList.toggle('active',selectMode);
+  document.querySelectorAll('.select-all-cb').forEach(cb=>{
+    cb.classList.toggle('hidden',!selectMode);
+    cb.checked=false;
+  });
+  renderTables();
+}
+function exitSelectMode(){
+  selectMode=false;
+  selectedIds.clear();
+  document.getElementById('select-mode-btn').classList.remove('active');
+  document.querySelectorAll('.select-all-cb').forEach(cb=>{ cb.classList.add('hidden'); cb.checked=false; });
+  renderTables();
+}
+function toggleTaskSelection(id,checked){
+  if(checked) selectedIds.add(id); else selectedIds.delete(id);
+  updateBulkBar();
+  // just toggle the row highlight without a full re-render (keeps focus/scroll position)
+  const row=document.getElementById('row-'+id);
+  if(row) row.classList.toggle('row-selected',checked);
+}
+function toggleSelectAll(list,checked){
+  const ids=tasks.filter(t=>t.list===list).map(t=>t.id);
+  ids.forEach(id=>{ if(checked) selectedIds.add(id); else selectedIds.delete(id); });
+  renderTables();
+}
+function updateBulkBar(){
+  const bar=document.getElementById('bulk-bar');
+  const countEl=document.getElementById('bulk-count');
+  if(!bar) return;
+  if(selectMode && selectedIds.size>0){
+    bar.classList.remove('hidden');
+    countEl.textContent=`${selectedIds.size} selected`;
+  } else {
+    bar.classList.add('hidden');
+  }
+}
+function bulkMarkDone(){
+  tasks.forEach(t=>{ if(selectedIds.has(t.id)) t.status='Done'; });
+  confetti();
+  toast(`${selectedIds.size} tasks marked done ✓`);
+  exitSelectMode();
+  checkBoom();
+}
+function bulkMoveToOther(){
+  const n=selectedIds.size;
+  tasks.forEach(t=>{ if(selectedIds.has(t.id)){ t.list='other'; t.date='Later'; } });
+  toast(`${n} tasks moved to Other ⏸`);
+  exitSelectMode();
+}
+function bulkDuplicate(){
+  const toDupe=tasks.filter(t=>selectedIds.has(t.id));
+  toDupe.forEach(t=>tasks.push({...t,id:Date.now()+Math.random(),name:t.name+' (copy)',subtasks:[]}));
+  toast(`${toDupe.length} tasks duplicated 📋`);
+  exitSelectMode();
+}
+function bulkDelete(){
+  const n=selectedIds.size;
+  if(!confirm(`Delete ${n} selected task${n>1?'s':''}? This cannot be undone.`)) return;
+  tasks=tasks.filter(t=>!selectedIds.has(t.id));
+  toast(`${n} tasks deleted 🗑`);
+  exitSelectMode();
 }
 
 function toggleDone(id,checked){
