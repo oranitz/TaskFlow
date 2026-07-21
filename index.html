@@ -15,7 +15,12 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b5bdb'/%3E%3Cstop offset='100%25' stop-color='%236d28d9'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' fill='white'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&display=swap" rel="stylesheet">
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 /* ── TOKENS LIGHT ── */
 :root {
@@ -47,8 +52,8 @@
 
 /* ── BASE ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:16px}
-body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
+html{font-size:17.5px}
+body{font-family:'Roboto',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.55;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
 button,input,select,textarea{font-family:inherit;color:inherit}
 select option{background:var(--surface);color:var(--text)}
 ::placeholder{color:var(--dim)}
@@ -85,54 +90,68 @@ tbody tr:nth-child(6){animation-delay:.18s}
 tbody tr:nth-child(7){animation-delay:.21s}
 tbody tr:nth-child(8){animation-delay:.24s}
 
+/* ── AUTH SCREEN ── */
+#auth{align-items:center;justify-content:center;background:var(--bg);padding:2rem}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:420px;box-shadow:var(--sh-lg);animation:popIn .3s cubic-bezier(.34,1.2,.64,1)}
+.auth-logo{width:52px;height:52px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 1.25rem;box-shadow:0 4px 16px rgba(59,91,219,.35)}
+.auth-title{font-size:28px;font-weight:800;text-align:center;letter-spacing:-.5px;margin-bottom:6px}
+.auth-sub{font-size:16px;color:var(--muted);text-align:center;margin-bottom:1.75rem;line-height:1.6}
+.auth-error{background:var(--red-bg);color:var(--red);border:1px solid var(--red);border-radius:10px;padding:10px 14px;font-size:15px;font-weight:600;margin-bottom:1.25rem;animation:fadeUp .2s ease}
+.auth-error.hidden{display:none}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:.5rem 0;color:var(--dim);font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.auth-switch{text-align:center;font-size:15px;color:var(--muted);margin-top:1.5rem}
+.auth-switch button{background:none;border:none;color:var(--accent);font-weight:700;cursor:pointer;font-size:15px;padding:0 4px;font-family:inherit}
+.auth-switch button:hover{text-decoration:underline}
+
 /* ── WELCOME ── */
 #welcome{align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;background:var(--surface)}
-#welcome .eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:1.25rem;font-weight:500;animation:fadeUp .5s .1s ease both}
+#welcome .eyebrow{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:1.25rem;font-weight:500;animation:fadeUp .5s .1s ease both}
 #welcome h1{font-size:clamp(36px,6vw,64px);font-weight:800;line-height:1.08;margin-bottom:1.5rem;letter-spacing:-1.5px;animation:fadeUp .5s .2s ease both}
 #welcome h1 span{color:var(--purple)}
-#welcome p{font-size:17px;color:var(--muted);max-width:520px;line-height:1.75;margin-bottom:2.5rem;animation:fadeUp .5s .3s ease both}
+#welcome p{font-size:19px;color:var(--muted);max-width:520px;line-height:1.75;margin-bottom:2.5rem;animation:fadeUp .5s .3s ease both}
 #welcome .welcome-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeUp .5s .4s ease both}
 
 /* ── MOOD ── */
 #mood{padding:2rem 2rem 4rem;max-width:700px;margin:0 auto;width:100%}
-#mood h2{font-size:32px;font-weight:800;margin-bottom:.5rem;letter-spacing:-.5px}
-#mood .sub{font-size:15px;color:var(--muted);margin-bottom:3rem;line-height:1.7}
-.section-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:1rem}
+#mood h2{font-size:34px;font-weight:800;margin-bottom:.5rem;letter-spacing:-.5px}
+#mood .sub{font-size:17px;color:var(--muted);margin-bottom:3rem;line-height:1.7}
+.section-label{font-size:14px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:1rem}
 .fuel-grid{display:flex;gap:12px;margin-bottom:2.5rem}
 .mood-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:3rem}
 
 /* ── TAG BUTTONS ── */
-.tag-btn{border:1.5px solid var(--border);border-radius:var(--r-sm);padding:13px 12px;background:var(--surface);color:var(--muted);font-size:14px;font-weight:500;cursor:pointer;transition:border-color .15s,background .15s,color .15s,box-shadow .15s,transform .12s;text-align:center;line-height:1.3}
+.tag-btn{border:1.5px solid var(--border);border-radius:var(--r-sm);padding:13px 12px;background:var(--surface);color:var(--muted);font-size:16px;font-weight:500;cursor:pointer;transition:border-color .15s,background .15s,color .15s,box-shadow .15s,transform .12s;text-align:center;line-height:1.3}
 .tag-btn:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);transform:translateY(-1px)}
 .tag-btn.active{border-color:var(--accent);background:var(--accent-bg);color:var(--accent);font-weight:700;box-shadow:0 0 0 3px var(--accent-bg)}
-.fuel-grid .tag-btn{flex:1;font-size:15px;padding:14px}
+.fuel-grid .tag-btn{flex:1;font-size:17px;padding:14px}
 
 /* ── BUTTONS ── */
-.btn-primary{background:var(--accent);color:#fff;border:none;border-radius:var(--r-sm);padding:11px 22px;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s,box-shadow .15s,transform .12s}
+.btn-primary{background:var(--accent);color:#fff;border:none;border-radius:var(--r-sm);padding:11px 22px;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s,box-shadow .15s,transform .12s}
 .btn-primary:hover{opacity:.88;box-shadow:0 4px 14px rgba(59,91,219,.35);transform:translateY(-1px)}
 .btn-primary:active{transform:scale(.97)}
 .btn-primary:disabled{background:var(--border);color:var(--dim);cursor:default;box-shadow:none;opacity:1;transform:none}
-.btn-ghost{background:var(--surface);color:var(--muted);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s,transform .12s}
+.btn-ghost{background:var(--surface);color:var(--muted);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:11px 20px;font-size:16px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s,transform .12s}
 .btn-ghost:hover{background:var(--surface2);border-color:var(--dim);transform:translateY(-1px)}
 .btn-ghost:active{transform:scale(.97)}
-.btn-pill{border-radius:50px!important;padding:13px 30px!important;font-size:15px!important}
+.btn-pill{border-radius:50px!important;padding:13px 30px!important;font-size:17px!important}
 
 /* ── TOPBAR ── */
 .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:var(--sh-sm);position:sticky;top:0;z-index:100;transition:background .3s,border-color .3s}
 .topbar-brand{display:flex;align-items:center;gap:12px}
-.topbar-logo{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 2px 8px rgba(59,91,219,.3);transition:transform .2s}
+.topbar-logo{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 2px 8px rgba(59,91,219,.3);transition:transform .2s}
 .topbar-logo:hover{transform:rotate(-8deg) scale(1.08)}
-.topbar-text .breadcrumb{font-size:11px;color:var(--dim);letter-spacing:.5px;margin-bottom:1px}
-.topbar-text h1{font-size:18px;font-weight:800;letter-spacing:-.3px;line-height:1.2}
+.topbar-text .breadcrumb{font-size:13px;color:var(--dim);letter-spacing:.5px;margin-bottom:1px}
+.topbar-text h1{font-size:20px;font-weight:800;letter-spacing:-.3px;line-height:1.2}
 .topbar-text h1 span{color:var(--accent)}
 .topbar-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
 
 /* ── SUBBAR ── */
 .subbar{background:var(--surface);border-bottom:1px solid var(--border2);padding:10px 32px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;transition:background .3s}
-.subbar .info{font-size:13px;color:var(--muted)}
+.subbar .info{font-size:15px;color:var(--muted)}
 .subbar .info b{color:var(--text);font-weight:700}
-.sep{color:var(--border);font-size:18px}
-.pill-btn{border:none;border-radius:50px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .12s,box-shadow .15s}
+.sep{color:var(--border);font-size:20px}
+.pill-btn{border:none;border-radius:50px;padding:6px 14px;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .12s,box-shadow .15s}
 .pill-btn:hover{opacity:.82;transform:translateY(-1px);box-shadow:var(--sh-sm)}
 .pill-btn:active{transform:scale(.95)}
 .pill-mood{background:var(--accent-bg);color:var(--accent)}
@@ -142,24 +161,25 @@ tbody tr:nth-child(8){animation-delay:.24s}
 .progress-wrap{margin-left:auto;display:flex;align-items:center;gap:10px}
 .progress-bar{width:160px;height:6px;background:var(--border2);border-radius:6px;overflow:hidden}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--purple));border-radius:6px;transition:width .6s cubic-bezier(.4,0,.2,1)}
-.progress-label{font-size:13px;color:var(--muted);font-weight:700;min-width:36px}
-.theme-toggle{background:var(--surface2);border:1.5px solid var(--border);border-radius:50px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;color:var(--muted);display:flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap}
+.progress-label{font-size:15px;color:var(--muted);font-weight:700;min-width:36px}
+.theme-toggle{background:var(--surface2);border:1.5px solid var(--border);border-radius:50px;padding:7px 14px;font-size:14px;font-weight:700;cursor:pointer;color:var(--muted);display:flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap}
 .theme-toggle:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.user-email-label{font-size:14px;color:var(--dim);font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ── CONTENT ── */
-.content{padding:28px 32px;max-width:1200px;width:100%;margin:0 auto;flex:1}
+.content{padding:28px 40px;width:100%;margin:0;flex:1;box-sizing:border-box}
 
 /* ── STAT CARDS ── */
-.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;box-shadow:var(--sh-sm);display:flex;flex-direction:column;gap:4px;transition:transform .2s,box-shadow .2s;cursor:default;animation:fadeUp .4s ease both}
 .stat-card:nth-child(1){animation-delay:.05s}
 .stat-card:nth-child(2){animation-delay:.1s}
 .stat-card:nth-child(3){animation-delay:.15s}
 .stat-card:nth-child(4){animation-delay:.2s}
 .stat-card:hover{transform:translateY(-2px);box-shadow:var(--sh)}
-.stat-card .stat-label{font-size:11px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-.stat-card .stat-value{font-size:26px;font-weight:800;color:var(--text);letter-spacing:-.5px;transition:transform .2s}
-.stat-card .stat-sub{font-size:12px;color:var(--muted)}
+.stat-card .stat-label{font-size:13px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.stat-card .stat-value{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-.5px;transition:transform .2s}
+.stat-card .stat-sub{font-size:14px;color:var(--muted)}
 .stat-card.accent-card{background:linear-gradient(135deg,var(--accent),var(--purple));border-color:transparent}
 .stat-card.accent-card .stat-label,.stat-card.accent-card .stat-value,.stat-card.accent-card .stat-sub{color:rgba(255,255,255,.9)}
 .stat-card.accent-card .stat-value{color:#fff}
@@ -167,31 +187,33 @@ tbody tr:nth-child(8){animation-delay:.24s}
 /* ── TABLE CARD ── */
 .table-card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);overflow:hidden;margin-bottom:20px;box-shadow:var(--sh-sm);animation:fadeUp .4s .15s ease both}
 .table-head{padding:16px 20px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:10px;background:var(--surface)}
-.table-title{font-weight:800;font-size:16px;color:var(--text);letter-spacing:-.2px}
-.count-badge{background:var(--surface3);color:var(--muted);border-radius:50px;padding:3px 11px;font-size:12px;font-weight:700;border:1px solid var(--border);transition:background .2s,color .2s}
-.search-inp{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;color:var(--text);outline:none;width:180px;transition:border-color .15s,width .25s ease,box-shadow .15s;margin-left:auto}
+.table-title{font-weight:800;font-size:18px;color:var(--text);letter-spacing:-.2px}
+.count-badge{background:var(--surface3);color:var(--muted);border-radius:50px;padding:3px 11px;font-size:14px;font-weight:700;border:1px solid var(--border);transition:background .2s,color .2s}
+.search-inp{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;font-size:15px;color:var(--text);outline:none;width:180px;transition:border-color .15s,width .25s ease,box-shadow .15s;margin-left:auto}
 .search-inp:focus{border-color:var(--accent);width:220px;box-shadow:0 0 0 3px var(--accent-bg)}
 
 table{width:100%;border-collapse:collapse}
-thead th{padding:10px 14px;text-align:left;font-size:11px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.6px;background:var(--surface2);border-bottom:1px solid var(--border2);white-space:nowrap}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.table-scroll table{min-width:760px}
+thead th{padding:10px 14px;text-align:left;font-size:13px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.6px;background:var(--surface2);border-bottom:1px solid var(--border2);white-space:nowrap}
 tbody tr{transition:background .1s}
 tbody tr:hover td{background:var(--surface2)}
-tbody td{padding:11px 14px;border-bottom:1px solid var(--border2);font-size:14px;vertical-align:middle}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--border2);font-size:16px;vertical-align:middle}
 tbody tr:last-child td{border-bottom:none}
-.task-name{font-weight:600;color:var(--text);font-size:14px;transition:color .2s}
+.task-name{font-weight:600;color:var(--text);font-size:16px;transition:color .2s}
 .task-name.done{color:var(--dim);text-decoration:line-through;font-weight:400}
 
 /* done-row dim */
 tr.row-done td{opacity:.6}
 
 /* ── LEVEL PILLS ── */
-.lp{border-radius:50px;padding:4px 11px;font-size:12px;font-weight:700;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.lp{border-radius:50px;padding:4px 11px;font-size:14px;font-weight:700;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
 .lp-light{background:var(--green-bg);color:var(--green)}
 .lp-medium{background:var(--yellow-bg);color:var(--yellow)}
 .lp-heavy{background:var(--red-bg);color:var(--red)}
 
 /* ── STATUS SELECT ── */
-.stat-sel{border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;outline:none;min-width:120px;border:1.5px solid transparent;transition:box-shadow .15s,background .2s,color .2s}
+.stat-sel{border-radius:8px;padding:5px 10px;font-size:14px;font-weight:700;cursor:pointer;outline:none;min-width:120px;border:1.5px solid transparent;transition:box-shadow .15s,background .2s,color .2s}
 .stat-sel:focus{box-shadow:0 0 0 3px var(--accent-bg)}
 .stat-notstarted{background:var(--surface2);color:var(--muted);border-color:var(--border)}
 .stat-imonit    {background:var(--accent-bg);color:var(--accent);border-color:var(--accent)}
@@ -200,20 +222,20 @@ tr.row-done td{opacity:.6}
 
 /* ── ROW ACTIONS ── */
 .row-actions{display:flex;gap:6px;align-items:center}
-.row-btn{background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:7px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:700;white-space:nowrap;transition:all .15s}
+.row-btn{background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:7px;padding:4px 10px;font-size:13px;cursor:pointer;font-weight:700;white-space:nowrap;transition:all .15s}
 .row-btn:hover{background:var(--accent-bg);color:var(--accent);border-color:var(--accent);transform:translateY(-1px)}
 .row-btn.accent{background:var(--accent-bg);color:var(--accent);border-color:var(--accent)}
-.ctx-btn{background:none;border:none;cursor:pointer;color:var(--dim);font-size:18px;padding:2px 6px;border-radius:6px;transition:background .15s,color .15s,transform .1s}
+.ctx-btn{background:none;border:none;cursor:pointer;color:var(--dim);font-size:20px;padding:2px 6px;border-radius:6px;transition:background .15s,color .15s,transform .1s}
 .ctx-btn:hover{background:var(--surface2);color:var(--muted);transform:scale(1.15)}
 .subtask-row td{background:var(--surface2)!important}
-.subtask-name{font-size:13px;color:var(--muted);font-weight:500}
+.subtask-name{font-size:15px;color:var(--muted);font-weight:500}
 
 /* ── CHECKBOX ANIMATION ── */
 input[type=checkbox]{accent-color:var(--accent);transition:transform .15s}
 input[type=checkbox]:checked{animation:checkPop .3s ease}
 
 /* ── BOTTOM BAR ── */
-.bottom-bar{padding:0 32px 32px;max-width:1200px;width:100%;margin:0 auto;display:flex;gap:10px}
+.bottom-bar{padding:0 40px 32px;width:100%;margin:0;display:flex;gap:10px;box-sizing:border-box}
 
 /* ── OVERLAY & MODAL ── */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);animation:fadeIn .18s ease}
@@ -221,14 +243,14 @@ input[type=checkbox]:checked{animation:checkPop .3s ease}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:2rem;width:min(580px,94vw);max-height:92vh;overflow-y:auto;box-shadow:var(--sh-lg);animation:slideUp .22s cubic-bezier(.34,1.2,.64,1)}
 .modal-wide{width:min(640px,94vw)}
 .modal-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border2)}
-.modal-hdr-text h2{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.2px}
-.modal-hdr-text p{font-size:13px;color:var(--muted);margin-top:4px}
-.close-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:8px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,transform .15s}
+.modal-hdr-text h2{font-size:21px;font-weight:800;color:var(--text);letter-spacing:-.2px}
+.modal-hdr-text p{font-size:15px;color:var(--muted);margin-top:4px}
+.close-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:8px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,transform .15s}
 .close-btn:hover{background:var(--surface3);transform:rotate(90deg)}
 
 /* ── FORM ── */
-.form-label{font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.form-inp{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:11px 14px;font-size:14px;color:var(--text);outline:none;transition:border-color .15s,background .15s,box-shadow .15s}
+.form-label{font-size:13px;font-weight:700;color:var(--muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.form-inp{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:11px 14px;font-size:16px;color:var(--text);outline:none;transition:border-color .15s,background .15s,box-shadow .15s}
 .form-inp:focus{border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 3px var(--accent-bg)}
 .form-inp.accent-border{border:2px solid var(--accent);background:var(--surface)}
 textarea.form-inp{resize:vertical;line-height:1.65}
@@ -236,29 +258,29 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 .form-row{display:flex;align-items:center;justify-content:space-between;padding-top:12px;flex-wrap:wrap;gap:12px}
 .form-actions{display:flex;gap:10px}
 .form-section{display:flex;flex-direction:column;gap:14px}
-.critical-label{display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;color:var(--muted);font-weight:500;transition:color .15s}
+.critical-label{display:flex;align-items:center;gap:9px;font-size:16px;cursor:pointer;color:var(--muted);font-weight:500;transition:color .15s}
 .critical-label:hover{color:var(--text)}
 .critical-label b{color:var(--text)}
 
 .dropdown-wrap{position:relative}
-.dropdown-btn{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:11px 14px;font-size:14px;color:var(--dim);text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:border-color .15s,box-shadow .15s}
+.dropdown-btn{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:11px 14px;font-size:16px;color:var(--dim);text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:border-color .15s,box-shadow .15s}
 .dropdown-btn:hover{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
 .dropdown-menu{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);z-index:20;box-shadow:var(--sh);overflow:hidden;animation:slideUp .15s ease}
 .dropdown-menu.hidden{display:none}
-.dropdown-item{display:block;width:100%;padding:11px 14px;background:transparent;border:none;text-align:left;cursor:pointer;font-size:14px;color:var(--text);font-family:inherit;transition:background .1s,color .1s}
+.dropdown-item{display:block;width:100%;padding:11px 14px;background:transparent;border:none;text-align:left;cursor:pointer;font-size:16px;color:var(--text);font-family:inherit;transition:background .1s,color .1s}
 .dropdown-item:hover,.dropdown-item.selected{background:var(--accent-bg);color:var(--accent)}
 
 /* ── SUBTASK ROWS ── */
 .sub-row{display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:var(--r-sm);padding:10px 14px;border:1px solid var(--border);margin-bottom:8px;transition:border-color .15s,box-shadow .15s}
 .sub-row:hover{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg)}
-.sub-row input[type=text]{flex:1;background:none;border:none;color:var(--text);font-size:14px;outline:none;font-family:inherit}
-.sub-row select{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;color:var(--muted);font-family:inherit}
-.sub-row .dur{font-size:12px;color:var(--dim);min-width:32px}
+.sub-row input[type=text]{flex:1;background:none;border:none;color:var(--text);font-size:16px;outline:none;font-family:inherit}
+.sub-row select{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:14px;color:var(--muted);font-family:inherit}
+.sub-row .dur{font-size:14px;color:var(--dim);min-width:32px}
 
 /* ── CTX MENU ── */
 .ctx-menu{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);z-index:999;min-width:180px;padding:6px;box-shadow:var(--sh-lg);animation:popIn .15s ease}
 .ctx-menu.hidden{display:none}
-.ctx-item{display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;padding:9px 12px;cursor:pointer;font-size:14px;color:var(--text);text-align:left;font-family:inherit;font-weight:500;border-radius:7px;transition:background .1s,transform .1s}
+.ctx-item{display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;padding:9px 12px;cursor:pointer;font-size:16px;color:var(--text);text-align:left;font-family:inherit;font-weight:500;border-radius:7px;transition:background .1s,transform .1s}
 .ctx-item:hover{background:var(--surface2);transform:translateX(2px)}
 .ctx-item.danger{color:var(--red)}
 .ctx-item.danger:hover{background:var(--red-bg)}
@@ -268,44 +290,44 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 .bd-result{display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem}
 .bd-item{display:flex;align-items:center;gap:14px;background:var(--surface2);border-radius:var(--r-sm);padding:13px 16px;border:1px solid var(--border);transition:border-color .15s,transform .15s;animation:fadeUp .3s ease both}
 .bd-item:hover{border-color:var(--accent);transform:translateX(3px)}
-.bd-name{font-size:14px;font-weight:600;color:var(--text)}
-.bd-meta{font-size:12px;color:var(--dim);margin-top:2px}
+.bd-name{font-size:16px;font-weight:600;color:var(--text)}
+.bd-meta{font-size:14px;color:var(--dim);margin-top:2px}
 
 /* ── FOCUS MODE ── */
 .focus-mode{position:fixed;inset:0;background:var(--bg);z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .focus-mode.hidden{display:none}
-.focus-eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:2.5rem;font-weight:600;animation:fadeUp .4s .1s ease both}
+.focus-eyebrow{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:2.5rem;font-weight:600;animation:fadeUp .4s .1s ease both}
 .focus-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2.75rem 3.5rem;max-width:500px;width:90%;text-align:center;box-shadow:var(--sh-lg);animation:popIn .35s cubic-bezier(.34,1.3,.64,1)}
-.focus-card h2{font-size:26px;font-weight:800;margin:1rem 0 .5rem;line-height:1.3;letter-spacing:-.3px}
-.focus-card .focus-meta{color:var(--muted);font-size:15px;margin-bottom:2rem}
+.focus-card h2{font-size:28px;font-weight:800;margin:1rem 0 .5rem;line-height:1.3;letter-spacing:-.3px}
+.focus-card .focus-meta{color:var(--muted);font-size:17px;margin-bottom:2rem}
 .focus-card .focus-actions{display:flex;gap:12px;justify-content:center}
-.focus-hint{color:var(--dim);font-size:13px;margin-top:2rem;animation:fadeIn .5s .4s ease both}
+.focus-hint{color:var(--dim);font-size:15px;margin-top:2rem;animation:fadeIn .5s .4s ease both}
 .exit-btn{position:absolute;top:24px;right:24px}
-.green-btn{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green);border-radius:var(--r-sm);padding:11px 20px;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .12s}
+.green-btn{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green);border-radius:var(--r-sm);padding:11px 20px;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .12s}
 .green-btn:hover{opacity:.85;transform:translateY(-1px)}
 
 /* ── POMODORO ── */
 .pomo-circle{position:relative;width:170px;height:170px;margin:0 auto 1.25rem}
 .pomo-circle svg{transform:rotate(-90deg)}
-.pomo-circle .time-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;font-family:monospace;color:var(--text)}
+.pomo-circle .time-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;font-family:monospace;color:var(--text)}
 #pomo-ring{transition:stroke-dashoffset .9s linear}
 
 /* ── QUICK CAPTURE ── */
 .capture-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;display:flex;align-items:flex-start;justify-content:center;padding-top:16vh;backdrop-filter:blur(4px);animation:fadeIn .15s ease}
 .capture-overlay.hidden{display:none}
 .capture-box{background:var(--surface);border:2px solid var(--accent);border-radius:16px;padding:1.25rem 1.5rem;width:min(520px,92vw);box-shadow:var(--sh-lg),0 0 50px rgba(116,143,252,.15);animation:slideUp .2s ease}
-.capture-hint{font-size:11px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
-.capture-inp{width:100%;background:transparent;border:none;color:var(--text);font-size:18px;outline:none;font-family:inherit;font-weight:500}
+.capture-hint{font-size:13px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.capture-inp{width:100%;background:transparent;border:none;color:var(--text);font-size:20px;outline:none;font-family:inherit;font-weight:500}
 
 /* ── CONFETTI BURST (task done) ── */
 .confetti-dot{position:fixed;pointer-events:none;width:8px;height:8px;border-radius:50%;z-index:9999;animation:confetti .7s ease forwards}
 
 /* ── TOAST ── */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:var(--surface);border-radius:50px;padding:10px 22px;font-size:14px;font-weight:600;z-index:4000;transition:transform .35s cubic-bezier(.34,1.3,.64,1),opacity .3s;opacity:0;white-space:nowrap}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:var(--surface);border-radius:50px;padding:10px 22px;font-size:16px;font-weight:600;z-index:4000;transition:transform .35s cubic-bezier(.34,1.3,.64,1),opacity .3s;opacity:0;white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
 /* ── EMPTY ── */
-.empty-row td{text-align:center;padding:3rem 1rem!important;color:var(--dim);font-size:14px;border:none!important;background:transparent!important}
+.empty-row td{text-align:center;padding:3rem 1rem!important;color:var(--dim);font-size:16px;border:none!important;background:transparent!important}
 
 /* ── UTIL ── */
 .flex{display:flex}.gap8{gap:8px}.gap10{gap:10px}.gap12{gap:12px}
@@ -323,7 +345,7 @@ textarea.form-inp{resize:vertical;line-height:1.65}
   display:flex;align-items:center;gap:6px;
   background:linear-gradient(135deg,var(--accent),var(--purple));
   color:#fff;border:none;border-radius:8px;
-  padding:6px 14px;font-size:12px;font-weight:700;
+  padding:6px 14px;font-size:14px;font-weight:700;
   cursor:pointer;transition:opacity .15s,transform .12s,box-shadow .15s;
   white-space:nowrap;box-shadow:0 2px 8px rgba(59,91,219,.3);
 }
@@ -335,7 +357,7 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 /* priority badge on rows */
 .priority-badge{
   display:inline-flex;align-items:center;gap:3px;
-  border-radius:50px;padding:2px 8px;font-size:11px;font-weight:800;
+  border-radius:50px;padding:2px 8px;font-size:13px;font-weight:800;
   white-space:nowrap;
 }
 .priority-1{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
@@ -360,10 +382,10 @@ textarea.form-inp{resize:vertical;line-height:1.65}
   width:26px;height:26px;border-radius:50%;
   background:var(--accent);color:#fff;
   display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:800;flex-shrink:0;
+  font-size:14px;font-weight:800;flex-shrink:0;
 }
-#sort-modal .sort-task-name{font-size:14px;font-weight:600;color:var(--text);flex:1}
-#sort-modal .sort-reason{font-size:12px;color:var(--muted);margin-top:2px}
+#sort-modal .sort-task-name{font-size:16px;font-weight:600;color:var(--text);flex:1}
+#sort-modal .sort-reason{font-size:14px;color:var(--muted);margin-top:2px}
 
 /* ── COLLAPSIBLE OTHER TASKS ── */
 #other-card .table-head:hover{background:var(--surface2)}
@@ -378,14 +400,24 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 /* Mobile bottom nav */
 .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:200;padding:8px 0 max(8px,env(safe-area-inset-bottom));box-shadow:0 -4px 20px rgba(0,0,0,.08)}
 .mobile-nav-inner{display:flex;justify-content:space-around;align-items:center}
-.mnav-btn{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border-radius:10px;color:var(--dim);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;transition:color .15s,background .15s;min-width:56px}
-.mnav-btn .mnav-icon{font-size:20px;line-height:1}
+.mnav-btn{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 12px;border-radius:10px;color:var(--dim);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;transition:color .15s,background .15s;min-width:56px}
+.mnav-btn .mnav-icon{font-size:22px;line-height:1}
 .mnav-btn.active{color:var(--accent)}
 .mnav-btn:active{background:var(--surface2)}
 
 /* Mobile FAB */
-.fab{display:none;position:fixed;bottom:calc(72px + max(8px,env(safe-area-inset-bottom)));right:20px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));color:#fff;border:none;font-size:26px;cursor:pointer;box-shadow:0 4px 20px rgba(59,91,219,.4);z-index:201;transition:transform .2s,box-shadow .2s;align-items:center;justify-content:center}
+.fab{display:none;position:fixed;bottom:calc(72px + max(8px,env(safe-area-inset-bottom)));right:20px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));color:#fff;border:none;font-size:28px;cursor:pointer;box-shadow:0 4px 20px rgba(59,91,219,.4);z-index:201;transition:transform .2s,box-shadow .2s;align-items:center;justify-content:center}
 .fab:active{transform:scale(.92)}
+
+/* ── TABLET (between desktop and mobile card-layout) ── */
+@media(max-width:1100px) and (min-width:769px){
+  .content{padding:22px 24px}
+  .bottom-bar{padding:0 24px 28px}
+  .topbar{padding:12px 20px}
+  .stat-row{grid-template-columns:repeat(2,1fr)}
+  .search-inp{width:140px}
+  .search-inp:focus{width:170px}
+}
 
 @media(max-width:768px){
   /* show mobile nav & fab */
@@ -398,34 +430,42 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 
   /* topbar mobile */
   .topbar{padding:10px 16px;gap:8px}
-  .topbar-text h1{font-size:15px}
+  .topbar-text h1{font-size:17px}
   .topbar-text .breadcrumb{display:none}
   .topbar-right .theme-toggle{display:none} /* moved to mobile nav */
   .topbar-right .pill-capture{display:none} /* FAB replaces this */
   .topbar-right .btn-primary{display:none}  /* FAB replaces + Add */
+  .topbar-right .user-email-label{display:none}
+  .topbar-right .signout-btn{display:flex!important}
+
+  /* auth screen mobile */
+  .auth-card{padding:2rem 1.5rem;max-width:100%}
+  .auth-title{font-size:24px}
 
   /* subbar scrolls horizontally */
   .subbar{padding:8px 16px;overflow-x:auto;flex-wrap:nowrap;gap:8px;scrollbar-width:none}
   .subbar::-webkit-scrollbar{display:none}
-  .subbar .info{white-space:nowrap;font-size:12px}
+  .subbar .info{white-space:nowrap;font-size:14px}
   .progress-wrap{flex-shrink:0}
   .progress-bar{width:80px}
 
   /* stat cards — 2x2 grid */
   .stat-row{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
   .stat-card{padding:14px 16px}
-  .stat-card .stat-value{font-size:22px}
+  .stat-card .stat-value{font-size:24px}
 
   /* table → card layout on mobile */
   table,thead,tbody,th,td,tr{display:block}
+  .table-scroll{overflow-x:visible}
+  .table-scroll table{min-width:0}
   thead tr{position:absolute;top:-9999px;left:-9999px}
   tbody tr{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;padding:14px;position:relative;animation:rowIn .25s ease both}
   tbody tr.subtask-row{margin-left:16px;border-style:dashed;padding:10px 14px}
-  tbody td{border:none;padding:4px 0;font-size:14px}
+  tbody td{border:none;padding:4px 0;font-size:16px}
   tbody td:empty{display:none}
 
   /* mobile card — task name big */
-  tbody td:nth-child(2){font-size:15px;font-weight:700;padding-bottom:8px;color:var(--text)}
+  tbody td:nth-child(2){font-size:17px;font-weight:700;padding-bottom:8px;color:var(--text)}
   /* status row */
   tbody td:nth-child(3){margin-bottom:6px}
   /* meta row — est, level, type, date inline */
@@ -435,7 +475,7 @@ textarea.form-inp{resize:vertical;line-height:1.65}
   /* checkbox positioned top-right */
   tbody td:nth-child(1){position:absolute;top:14px;right:14px}
 
-  .stat-sel{min-width:100px;font-size:12px}
+  .stat-sel{min-width:100px;font-size:14px}
   .search-inp{width:100%}
   .table-head{flex-wrap:wrap;gap:8px;padding:12px 14px}
   .table-head .search-inp{width:100%;order:3}
@@ -443,13 +483,13 @@ textarea.form-inp{resize:vertical;line-height:1.65}
   /* welcome screen */
   #welcome{padding:2.5rem 1.5rem}
   #welcome h1{font-size:clamp(28px,8vw,44px);letter-spacing:-1px}
-  #welcome p{font-size:15px}
+  #welcome p{font-size:17px}
   #welcome .welcome-btns{flex-direction:column;align-items:stretch}
   #welcome .welcome-btns button{width:100%}
 
   /* mood screen */
   #mood{padding:1.5rem 1.25rem 6rem}
-  #mood h2{font-size:26px}
+  #mood h2{font-size:28px}
   .mood-grid{grid-template-columns:1fr 1fr;gap:8px}
   .fuel-grid{gap:8px}
 
@@ -461,7 +501,7 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 
   /* focus mode */
   .focus-card{padding:2rem 1.5rem}
-  .focus-card h2{font-size:20px}
+  .focus-card h2{font-size:22px}
   .focus-card .focus-actions{flex-direction:column}
   .focus-card .focus-actions button{width:100%}
   .exit-btn{top:16px;right:16px}
@@ -469,7 +509,7 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 
 @media(max-width:400px){
   .stat-row{grid-template-columns:1fr 1fr}
-  .stat-card .stat-value{font-size:20px}
+  .stat-card .stat-value{font-size:22px}
 }
 </style>
 </head>
@@ -478,8 +518,43 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 <!-- ══ TOAST ══ -->
 <div class="toast" id="toast"></div>
 
+<!-- ══ AUTH SCREEN ══ -->
+<div id="auth" class="screen active">
+  <div class="auth-card">
+    <div class="auth-logo">⚡</div>
+    <h1 class="auth-title">TaskFlow</h1>
+    <p class="auth-sub" id="auth-mode-sub">Sign in to sync your tasks across devices</p>
+
+    <div id="auth-error" class="auth-error hidden"></div>
+
+    <div class="form-section">
+      <div>
+        <label class="form-label">Email</label>
+        <input class="form-inp accent-border" id="auth-email" type="email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div>
+        <label class="form-label">Password</label>
+        <input class="form-inp" id="auth-password" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleAuthSubmit()">
+      </div>
+      <button class="btn-primary" id="auth-submit-btn" style="width:100%;padding:13px;font-size:17px" onclick="handleAuthSubmit()">Sign In</button>
+
+      <div class="auth-divider"><span>or</span></div>
+
+      <button class="btn-ghost" style="width:100%;padding:12px;display:flex;align-items:center;justify-content:center;gap:10px" onclick="signInWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.259h2.908c1.702-1.567 2.684-3.874 2.684-6.617z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 16.017 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 1.983.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+
+    <p class="auth-switch">
+      <span id="auth-switch-text">Don't have an account?</span>
+      <button onclick="toggleAuthMode()" id="auth-switch-btn">Sign up</button>
+    </p>
+  </div>
+</div>
+
 <!-- ══ WELCOME ══ -->
-<div id="welcome" class="screen active">
+<div id="welcome" class="screen">
   <p class="eyebrow">Designed to sync your tasks with your real-time energy</p>
   <h1><span>Hi Zizi,</span> Welcome<br>to TaskFlow</h1>
   <p>Before we jump in, sync your favorite tools to bring your tasks in automatically — or start fresh with a workspace built for your mood.</p>
@@ -491,7 +566,7 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 
 <!-- ══ MOOD ══ -->
 <div id="mood" class="screen">
-  <button class="btn-ghost" style="align-self:flex-start;margin:2rem 2rem 0;border-radius:50px;padding:8px 18px;font-size:13px" onclick="goWelcome()">← Back</button>
+  <button class="btn-ghost" style="align-self:flex-start;margin:2rem 2rem 0;border-radius:50px;padding:8px 18px;font-size:15px" onclick="goWelcome()">← Back</button>
   <div style="max-width:700px;width:100%;margin:0 auto;padding:2rem 2rem 4rem">
     <h2>Your energy, Your rules.</h2>
     <p class="sub">We start with how you feel today to build a schedule that actually works for you.</p>
@@ -527,10 +602,12 @@ textarea.form-inp{resize:vertical;line-height:1.65}
       </div>
     </div>
     <div class="topbar-right">
+      <span id="user-email-label" class="user-email-label"></span>
       <button class="theme-toggle" id="install-app-btn" onclick="installApp()" style="display:none;border-color:var(--accent);color:var(--accent)">⬇️ Install App</button>
       <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
       <button class="pill-btn pill-capture" onclick="openCapture()">⚡ Quick Capture</button>
       <button class="btn-primary" onclick="openAddTask()">+ Add Task</button>
+      <button class="theme-toggle signout-btn" onclick="signOutUser()" title="Sign out">🚪</button>
     </div>
   </div>
 
@@ -580,26 +657,30 @@ textarea.form-inp{resize:vertical;line-height:1.65}
         </button>
         <input class="search-inp" placeholder="🔍 Search tasks…" oninput="filterTasks(this,'today')">
       </div>
+      <div class="table-scroll">
       <table><thead><tr>
         <th style="width:36px"></th><th>Task Name</th><th>Status</th>
         <th>Est.</th><th>Level</th><th>Type</th><th>Date</th><th style="width:230px"></th>
       </tr></thead><tbody id="today-tbody"></tbody></table>
+      </div>
     </div>
 
     <div class="table-card" id="other-card">
       <div class="table-head" onclick="toggleOther()" style="cursor:pointer;user-select:none">
         <span class="table-title">Other Tasks</span>
         <span class="count-badge" id="other-count">3</span>
-        <span id="other-hint" style="margin-left:8px;font-size:12px;color:var(--dim);font-weight:500">Click to expand</span>
+        <span id="other-hint" style="margin-left:8px;font-size:14px;color:var(--dim);font-weight:500">Click to expand</span>
         <div style="margin-left:auto">
-          <span id="other-chevron" style="font-size:16px;color:var(--dim);transition:transform .3s;display:inline-block">▸</span>
+          <span id="other-chevron" style="font-size:18px;color:var(--dim);transition:transform .3s;display:inline-block">▸</span>
         </div>
       </div>
       <div id="other-body" style="display:none;overflow:hidden">
+        <div class="table-scroll">
         <table><thead><tr>
           <th style="width:36px"></th><th>Task Name</th><th>Status</th>
           <th>Est.</th><th>Level</th><th>Type</th><th>Date</th><th style="width:230px"></th>
         </tr></thead><tbody id="other-tbody"></tbody></table>
+        </div>
       </div>
     </div>
   </div>
@@ -690,7 +771,7 @@ textarea.form-inp{resize:vertical;line-height:1.65}
       <button class="close-btn" onclick="closeModal('braindump-modal')">✕</button>
     </div>
     <div id="braindump-body">
-      <textarea class="form-inp" id="braindump-text" rows="8" placeholder="Just write everything in your head… meetings, errands, worries, ideas — everything!" style="margin-bottom:16px;line-height:1.7;font-size:15px"></textarea>
+      <textarea class="form-inp" id="braindump-text" rows="8" placeholder="Just write everything in your head… meetings, errands, worries, ideas — everything!" style="margin-bottom:16px;line-height:1.7;font-size:17px"></textarea>
       <div class="flex-end">
         <button class="btn-ghost" onclick="closeModal('braindump-modal')">Cancel</button>
         <button class="btn-primary" id="braindump-btn" onclick="processBrainDump()">Organize my thoughts →</button>
@@ -704,8 +785,8 @@ textarea.form-inp{resize:vertical;line-height:1.65}
   <div class="modal text-center">
     <div style="display:flex;justify-content:flex-end"><button class="close-btn" onclick="closeModal('snack-modal')">✕</button></div>
     <span class="emoji-big">⚡</span>
-    <h2 style="font-size:22px;font-weight:800;margin-bottom:8px;letter-spacing:-.3px">Task Snack</h2>
-    <p style="font-size:14px;color:var(--muted);margin-bottom:1.75rem;line-height:1.6">Feeling stuck? Here's a quick win to get the dopamine flowing.</p>
+    <h2 style="font-size:24px;font-weight:800;margin-bottom:8px;letter-spacing:-.3px">Task Snack</h2>
+    <p style="font-size:16px;color:var(--muted);margin-bottom:1.75rem;line-height:1.6">Feeling stuck? Here's a quick win to get the dopamine flowing.</p>
     <div id="snack-card"></div>
     <div class="flex-end mt12">
       <button class="btn-ghost" onclick="closeModal('snack-modal')">Maybe later</button>
@@ -752,13 +833,13 @@ textarea.form-inp{resize:vertical;line-height:1.65}
       <button class="close-btn" onclick="closeModal('sync-modal')">✕</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:1.75rem" id="sync-list">
-      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:15px;font-weight:500"><input type="checkbox" style="width:17px;height:17px;accent-color:var(--accent)"> Google Tasks / Calendar</label>
-      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:15px;font-weight:500"><input type="checkbox" checked style="width:17px;height:17px;accent-color:var(--accent)"> Monday.com</label>
-      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:15px;font-weight:500"><input type="checkbox" style="width:17px;height:17px;accent-color:var(--accent)"> Asana</label>
-      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:15px;font-weight:500"><input type="checkbox" style="width:17px;height:17px;accent-color:var(--accent)"> Trello</label>
-      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:15px;font-weight:500"><input type="checkbox" style="width:17px;height:17px;accent-color:var(--accent)"> ClickUp</label>
-      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:15px;font-weight:500"><input type="checkbox" style="width:17px;height:17px;accent-color:var(--accent)"> Notion</label>
-      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:15px;font-weight:500"><input type="checkbox" style="width:17px;height:17px;accent-color:var(--accent)"> Outlook</label>
+      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:17px;font-weight:500"><input type="checkbox" style="width:17px;height:17px;accent-color:var(--accent)"> Google Tasks / Calendar</label>
+      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:17px;font-weight:500"><input type="checkbox" checked style="width:17px;height:17px;accent-color:var(--accent)"> Monday.com</label>
+      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:17px;font-weight:500"><input type="checkbox" style="width:17px;height:17px;accent-color:var(--accent)"> Asana</label>
+      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:17px;font-weight:500"><input type="checkbox" style="width:17px;height:17px;accent-color:var(--accent)"> Trello</label>
+      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:17px;font-weight:500"><input type="checkbox" style="width:17px;height:17px;accent-color:var(--accent)"> ClickUp</label>
+      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:17px;font-weight:500"><input type="checkbox" style="width:17px;height:17px;accent-color:var(--accent)"> Notion</label>
+      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:17px;font-weight:500"><input type="checkbox" style="width:17px;height:17px;accent-color:var(--accent)"> Outlook</label>
     </div>
     <div class="flex-end">
       <button class="btn-ghost" onclick="closeModal('sync-modal')">Cancel</button>
@@ -771,11 +852,11 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 <div class="overlay hidden" id="boom-modal">
   <div class="modal text-center">
     <span class="emoji-big">🏆</span>
-    <h2 style="font-size:24px;font-weight:800;margin-bottom:10px;letter-spacing:-.3px">Boom! You did it!</h2>
-    <p style="color:var(--muted);margin-bottom:2rem;font-size:15px;line-height:1.6">You cleared your list like a pro. What's next? Up to you :)</p>
+    <h2 style="font-size:26px;font-weight:800;margin-bottom:10px;letter-spacing:-.3px">Boom! You did it!</h2>
+    <p style="color:var(--muted);margin-bottom:2rem;font-size:17px;line-height:1.6">You cleared your list like a pro. What's next? Up to you :)</p>
     <div style="display:flex;justify-content:center;gap:28px;margin-bottom:2rem">
-      <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:15px;font-weight:500"><input type="radio" name="boom" style="accent-color:var(--accent)"> Hungry for more? 🍕</label>
-      <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:15px;font-weight:500"><input type="radio" name="boom" style="accent-color:var(--accent)"> Done for today ✌️</label>
+      <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:17px;font-weight:500"><input type="radio" name="boom" style="accent-color:var(--accent)"> Hungry for more? 🍕</label>
+      <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:17px;font-weight:500"><input type="radio" name="boom" style="accent-color:var(--accent)"> Done for today ✌️</label>
     </div>
     <div class="flex-end"><button class="btn-ghost" onclick="closeModal('boom-modal')">Cancel</button><button class="btn-primary" onclick="closeModal('boom-modal')">Done</button></div>
   </div>
@@ -785,10 +866,10 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 <div class="overlay hidden" id="finish-modal">
   <div class="modal text-center">
     <span class="emoji-big">👐</span>
-    <h2 style="font-size:24px;font-weight:800;margin-bottom:10px">Great shift, Zizi!</h2>
-    <p style="color:var(--muted);font-size:15px">You're all clear for now.</p>
-    <p style="font-weight:700;margin:10px 0 6px;font-size:16px">Go enjoy the rest of your day!</p>
-    <p style="color:var(--muted);margin-bottom:2rem;font-size:14px">I'll prep a fresh flow for you tomorrow morning.</p>
+    <h2 style="font-size:26px;font-weight:800;margin-bottom:10px">Great shift, Zizi!</h2>
+    <p style="color:var(--muted);font-size:17px">You're all clear for now.</p>
+    <p style="font-weight:700;margin:10px 0 6px;font-size:18px">Go enjoy the rest of your day!</p>
+    <p style="color:var(--muted);margin-bottom:2rem;font-size:16px">I'll prep a fresh flow for you tomorrow morning.</p>
     <button class="btn-primary btn-pill" onclick="closeModal('finish-modal')">Sounds like a plan! 👋</button>
   </div>
 </div>
@@ -813,7 +894,7 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 <div class="overlay hidden" id="pomo-modal">
   <div class="modal text-center">
     <div style="display:flex;justify-content:flex-end"><button class="close-btn" onclick="closeModal('pomo-modal')">✕</button></div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:.75rem;font-weight:500" id="pomo-task-label">Focus timer</p>
+    <p style="font-size:15px;color:var(--muted);margin-bottom:.75rem;font-weight:500" id="pomo-task-label">Focus timer</p>
     <div class="pomo-circle">
       <svg width="170" height="170" viewBox="0 0 170 170">
         <circle cx="85" cy="85" r="74" fill="none" stroke="var(--border)" stroke-width="8"/>
@@ -822,12 +903,12 @@ textarea.form-inp{resize:vertical;line-height:1.65}
       </svg>
       <div class="time-label" id="pomo-display">25:00</div>
     </div>
-    <div id="pomo-done-msg" style="display:none;margin-bottom:.75rem"><span style="font-size:30px">🎉</span><p style="color:var(--green);font-weight:700;margin-top:8px;font-size:15px">Pomodoro complete! Take a break.</p></div>
+    <div id="pomo-done-msg" style="display:none;margin-bottom:.75rem"><span style="font-size:32px">🎉</span><p style="color:var(--green);font-weight:700;margin-top:8px;font-size:17px">Pomodoro complete! Take a break.</p></div>
     <div class="flex gap10" style="justify-content:center;margin-bottom:1.25rem" id="pomo-controls">
       <button class="btn-primary" id="pomo-start-btn" onclick="togglePomo()">▶ Start</button>
       <button class="btn-ghost" onclick="resetPomo()">↺ Reset</button>
     </div>
-    <p style="font-size:13px;color:var(--dim)">25 min focused work · then a short break</p>
+    <p style="font-size:15px;color:var(--dim)">25 min focused work · then a short break</p>
   </div>
 </div>
 
@@ -898,7 +979,7 @@ textarea.form-inp{resize:vertical;line-height:1.65}
     <div class="form-section">
       <div>
         <label class="form-label">Emoji</label>
-        <input class="form-inp" id="custom-mood-emoji" placeholder="e.g. 🥱" maxlength="4" style="font-size:22px;text-align:center">
+        <input class="form-inp" id="custom-mood-emoji" placeholder="e.g. 🥱" maxlength="4" style="font-size:24px;text-align:center">
       </div>
       <div>
         <label class="form-label">Mood name</label>
@@ -916,15 +997,17 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 /* ══════════════════════════════════════
    STATE
 ══════════════════════════════════════ */
-let currentScreen='welcome';
+let currentScreen='auth';
 let selectedFuel=null, selectedMood=null;
 let tempFuel=null, tempMood=null;
 let editingTaskId=null, selectedLevel=null;
 let ctxTaskId=null, snackTaskId=null, breakdownTaskId=null, focusTaskId=null;
 let pomInterval=null, pomSecs=25*60, pomRunning=false;
 let isDark=false;
+let authMode='signin'; // 'signin' | 'signup'
+let currentUser=null;
 
-let tasks=[
+const DEFAULT_TASKS=[
   {id:1,name:"Respond to 3 Slack messages",status:"Not Started",est:"10m",level:"Light",category:"Work",date:"Today",critical:false,subtasks:[],list:"today"},
   {id:2,name:"Tidy the living room",status:"Not Started",est:"20m",level:"Light",category:"Home",date:"Today",critical:false,subtasks:[],list:"today"},
   {id:3,name:"School Sign-up",status:"Not Started",est:"1 hour",level:"Heavy",category:"Kids",date:"Today",critical:true,subtasks:[],list:"today"},
@@ -934,12 +1017,27 @@ let tasks=[
   {id:7,name:"Review weekly goals",status:"Not Started",est:"20m",level:"Medium",category:"Work",date:"This week",critical:false,subtasks:[],list:"other"},
   {id:8,name:"Water your plants",status:"Not Started",est:"10m",level:"Light",category:"Home",date:"This week",critical:false,subtasks:[],list:"other"},
 ];
+let tasks=[...DEFAULT_TASKS];
 
-/* ══ PERSISTENCE (localStorage) ══ */
-const STORAGE_KEY='taskflow_data_v1';
+/* ══ FIREBASE INIT ══ */
+const firebaseConfig={
+  apiKey:"AIzaSyAdQniQRan7MoZCHzHxl1nZ1T098-jQaNQ",
+  authDomain:"task-flow-4f9e0.firebaseapp.com",
+  projectId:"task-flow-4f9e0",
+  storageBucket:"task-flow-4f9e0.firebasestorage.app",
+  messagingSenderId:"392727014555",
+  appId:"1:392727014555:web:d9f92a0d117bea6580aa3e"
+};
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+const db=firebase.firestore();
 
+/* ══ PERSISTENCE (Firestore, per-user) ══ */
+let saveTimer=null;
 function saveState(){
-  try{
+  if(!currentUser) return; // not signed in yet — nothing to save to
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
     const data={
       tasks,
       selectedFuel,
@@ -947,15 +1045,17 @@ function saveState(){
       isDark,
       savedAt:Date.now()
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }catch(e){ console.warn('Could not save state', e); }
+    db.collection('users').doc(currentUser.uid).set(data,{merge:true})
+      .catch(e=>console.warn('Could not save to Firestore', e));
+  },400); // debounce rapid changes
 }
 
-function loadState(){
+async function loadState(){
+  if(!currentUser) return false;
   try{
-    const raw=localStorage.getItem(STORAGE_KEY);
-    if(!raw) return false;
-    const data=JSON.parse(raw);
+    const doc=await db.collection('users').doc(currentUser.uid).get();
+    if(!doc.exists) return false;
+    const data=doc.data();
     if(data.tasks && Array.isArray(data.tasks) && data.tasks.length>0){
       tasks=data.tasks;
     }
@@ -964,17 +1064,120 @@ function loadState(){
     if(typeof data.isDark==='boolean') isDark=data.isDark;
     return true;
   }catch(e){
-    console.warn('Could not load state', e);
+    console.warn('Could not load from Firestore', e);
     return false;
   }
 }
 
 function clearSavedData(){
   if(confirm('Reset all tasks and start fresh? This cannot be undone.')){
-    localStorage.removeItem(STORAGE_KEY);
+    tasks=[...DEFAULT_TASKS];
+    selectedFuel=null; selectedMood=null;
+    if(currentUser){
+      db.collection('users').doc(currentUser.uid).set({tasks,selectedFuel:null,selectedMood:null},{merge:true});
+    }
     location.reload();
   }
 }
+
+/* ══ AUTH ══ */
+function showAuthError(msg){
+  const el=document.getElementById('auth-error');
+  el.textContent=msg;
+  el.classList.remove('hidden');
+}
+function hideAuthError(){
+  document.getElementById('auth-error').classList.add('hidden');
+}
+function toggleAuthMode(){
+  authMode = authMode==='signin' ? 'signup' : 'signin';
+  hideAuthError();
+  if(authMode==='signup'){
+    document.getElementById('auth-mode-sub').textContent='Create an account to get started';
+    document.getElementById('auth-submit-btn').textContent='Create Account';
+    document.getElementById('auth-switch-text').textContent='Already have an account?';
+    document.getElementById('auth-switch-btn').textContent='Sign in';
+  } else {
+    document.getElementById('auth-mode-sub').textContent='Sign in to sync your tasks across devices';
+    document.getElementById('auth-submit-btn').textContent='Sign In';
+    document.getElementById('auth-switch-text').textContent="Don't have an account?";
+    document.getElementById('auth-switch-btn').textContent='Sign up';
+  }
+}
+function handleAuthSubmit(){
+  const email=document.getElementById('auth-email').value.trim();
+  const password=document.getElementById('auth-password').value;
+  hideAuthError();
+  if(!email || !password){ showAuthError('Please enter an email and password.'); return; }
+  if(password.length<6){ showAuthError('Password must be at least 6 characters.'); return; }
+
+  const btn=document.getElementById('auth-submit-btn');
+  btn.disabled=true; btn.textContent='Please wait…';
+
+  const action = authMode==='signup'
+    ? auth.createUserWithEmailAndPassword(email,password)
+    : auth.signInWithEmailAndPassword(email,password);
+
+  action
+    .catch(err=>{
+      showAuthError(friendlyAuthError(err));
+    })
+    .finally(()=>{
+      btn.disabled=false;
+      btn.textContent = authMode==='signup' ? 'Create Account' : 'Sign In';
+    });
+}
+function signInWithGoogle(){
+  hideAuthError();
+  const provider=new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(err=>showAuthError(friendlyAuthError(err)));
+}
+function signOutUser(){
+  auth.signOut().then(()=>location.reload());
+}
+function friendlyAuthError(err){
+  const map={
+    'auth/email-already-in-use':'That email is already registered — try signing in instead.',
+    'auth/invalid-email':'That email address looks invalid.',
+    'auth/weak-password':'Password should be at least 6 characters.',
+    'auth/user-not-found':'No account found with that email.',
+    'auth/wrong-password':'Incorrect password.',
+    'auth/invalid-credential':'Incorrect email or password.',
+    'auth/popup-closed-by-user':'Google sign-in was closed before finishing.',
+    'auth/network-request-failed':'Network error — check your connection.'
+  };
+  return map[err.code] || err.message || 'Something went wrong. Please try again.';
+}
+
+/* ══ AUTH STATE LISTENER — drives the whole app flow ══ */
+auth.onAuthStateChanged(async (user)=>{
+  if(user){
+    currentUser=user;
+    const hadSavedData=await loadState();
+    updatePomoDisplay();
+
+    if(isDark){
+      document.body.setAttribute('data-theme','dark');
+      const tb=document.getElementById('theme-btn'); if(tb) tb.textContent='☀️ Light';
+      const mIcon=document.getElementById('mnav-theme-icon'); if(mIcon) mIcon.textContent='☀️';
+    }
+
+    if(hadSavedData && selectedFuel && selectedMood){
+      showScreen('main');
+      updateLabels();
+      renderTables();
+    } else {
+      showScreen('welcome');
+    }
+
+    // show user email + sign out button in topbar
+    const userLabel=document.getElementById('user-email-label');
+    if(userLabel) userLabel.textContent=user.email || user.displayName || 'Account';
+  } else {
+    currentUser=null;
+    showScreen('auth');
+  }
+});
 
 /* ══ TOAST ══ */
 function toast(msg,duration=2200){
@@ -1131,16 +1334,16 @@ function renderRow(t){
     <td><input type="checkbox" ${done?'checked':''} onchange="toggleDone(${t.id},this.checked)" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)"></td>
     <td><span class="task-name${done?' done':''}">${t.critical?'🔥 ':''}${t.name}</span></td>
     <td>${ssel(t.id,t.status)}</td>
-    <td style="font-size:13px;color:var(--dim);font-weight:600">${t.est}</td>
+    <td style="font-size:15px;color:var(--dim);font-weight:600">${t.est}</td>
     <td>${lp(t.level)}</td>
-    <td style="font-size:13px;color:var(--muted);font-weight:500">${t.category}</td>
-    <td style="font-size:13px;color:var(--dim)">${t.date}</td>
+    <td style="font-size:15px;color:var(--muted);font-weight:500">${t.category}</td>
+    <td style="font-size:15px;color:var(--dim)">${t.date}</td>
     <td><div class="row-actions">
       <button class="row-btn" onclick="openFocus(${t.id})">🎯 Focus</button>
       ${t.level==='Heavy'?`<button class="row-btn accent" onclick="openBreakdown(${t.id})">✨ Break it down</button>`:''}
       <button class="ctx-btn" onclick="openCtx(event,${t.id})">⋯</button>
     </div></td>
-  </tr>${(t.subtasks||[]).map(st=>`<tr class="subtask-row"><td></td><td><span class="subtask-name">↳ ${st.name}</span></td><td><select class="stat-sel stat-notstarted" style="font-size:12px;min-width:95px"><option>Not Started</option></select></td><td style="font-size:12px;color:var(--dim)">${st.duration||''}</td><td>${lp(st.level||'Light')}</td><td colspan="3"></td></tr>`).join('')}`;
+  </tr>${(t.subtasks||[]).map(st=>`<tr class="subtask-row"><td></td><td><span class="subtask-name">↳ ${st.name}</span></td><td><select class="stat-sel stat-notstarted" style="font-size:14px;min-width:95px"><option>Not Started</option></select></td><td style="font-size:14px;color:var(--dim)">${st.duration||''}</td><td>${lp(st.level||'Light')}</td><td colspan="3"></td></tr>`).join('')}`;
 }
 
 function renderTables(){
@@ -1301,8 +1504,8 @@ async function generateBreakdown(task){
   window._currentSubs=subs;
   document.getElementById('breakdown-body').innerHTML=`
     <div class="flex gap8 mb16">
-      <button class="btn-ghost" style="font-size:13px" onclick="openBreakdown(${breakdownTaskId})">✨ Regenerate</button>
-      <button class="btn-ghost" style="font-size:13px" onclick="addSubtaskRow()">+ Add step</button>
+      <button class="btn-ghost" style="font-size:15px" onclick="openBreakdown(${breakdownTaskId})">✨ Regenerate</button>
+      <button class="btn-ghost" style="font-size:15px" onclick="addSubtaskRow()">+ Add step</button>
     </div>
     <div id="sub-list">${subs.map((s,i)=>`<div class="sub-row">
       <input type="checkbox" style="width:15px;height:15px;accent-color:var(--accent);flex-shrink:0">
@@ -1313,7 +1516,7 @@ async function generateBreakdown(task){
         <option ${s.level==='Heavy'?'selected':''}>Heavy</option>
       </select>
       <span class="dur">${s.duration}</span>${lp(s.level)}
-      <button onclick="removeSubRow(this,${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;flex-shrink:0">✕</button>
+      <button onclick="removeSubRow(this,${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px;flex-shrink:0">✕</button>
     </div>`).join('')}</div>
     <div class="flex-end mt16">
       <button class="btn-ghost" onclick="closeModal('breakdown-modal')">Cancel</button>
@@ -1327,7 +1530,7 @@ function addSubtaskRow(){
   window._currentSubs.push(s);
   const div=document.createElement('div');
   div.className='sub-row';
-  div.innerHTML=`<input type="checkbox" style="width:15px;height:15px;accent-color:var(--accent);flex-shrink:0"><input type="text" value="${s.name}" oninput="window._currentSubs[${i}].name=this.value"><select onchange="window._currentSubs[${i}].level=this.value"><option>Light</option><option>Medium</option><option>Heavy</option></select><span class="dur">${s.duration}</span>${lp('Light')}<button onclick="removeSubRow(this,${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;flex-shrink:0">✕</button>`;
+  div.innerHTML=`<input type="checkbox" style="width:15px;height:15px;accent-color:var(--accent);flex-shrink:0"><input type="text" value="${s.name}" oninput="window._currentSubs[${i}].name=this.value"><select onchange="window._currentSubs[${i}].level=this.value"><option>Light</option><option>Medium</option><option>Heavy</option></select><span class="dur">${s.duration}</span>${lp('Light')}<button onclick="removeSubRow(this,${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px;flex-shrink:0">✕</button>`;
   document.getElementById('sub-list').appendChild(div);
 }
 function removeSubRow(btn,i){
@@ -1343,7 +1546,7 @@ function saveBreakdown(){
 /* ══ BRAIN DUMP ══ */
 function openBrainDump(){
   document.getElementById('braindump-body').innerHTML=`
-    <textarea class="form-inp" id="braindump-text" rows="8" placeholder="Just write everything in your head… meetings, errands, worries, half-formed ideas — everything!" style="margin-bottom:16px;line-height:1.7;font-size:15px"></textarea>
+    <textarea class="form-inp" id="braindump-text" rows="8" placeholder="Just write everything in your head… meetings, errands, worries, half-formed ideas — everything!" style="margin-bottom:16px;line-height:1.7;font-size:17px"></textarea>
     <div class="flex-end">
       <button class="btn-ghost" onclick="closeModal('braindump-modal')">Cancel</button>
       <button class="btn-primary" id="braindump-btn" onclick="processBrainDump()">Organize my thoughts →</button>
@@ -1368,9 +1571,9 @@ async function processBrainDump(){
   }
   window._bdResult=result;
   document.getElementById('braindump-body').innerHTML=`
-    <p style="font-size:14px;color:var(--muted);margin-bottom:1.25rem;font-weight:500">Here's what I found — review and save to your task list:</p>
+    <p style="font-size:16px;color:var(--muted);margin-bottom:1.25rem;font-weight:500">Here's what I found — review and save to your task list:</p>
     <div class="bd-result">${result.map((t,i)=>`<div class="bd-item" style="animation-delay:${i*.06}s">
-      <span style="font-size:20px">${t.level==='Heavy'?'💪':t.level==='Medium'?'⚖️':'🌱'}</span>
+      <span style="font-size:22px">${t.level==='Heavy'?'💪':t.level==='Medium'?'⚖️':'🌱'}</span>
       <div style="flex:1"><div class="bd-name">${t.name}</div><div class="bd-meta">${t.est} · ${t.category} · ${t.date}</div></div>
       ${lp(t.level)}
     </div>`).join('')}</div>
@@ -1397,10 +1600,10 @@ function openTaskSnack(){
   snackTaskId=snack?.id||null;
   document.getElementById('snack-card').innerHTML=snack
     ?`<div style="background:var(--accent-bg);border:2px solid var(--accent);border-radius:12px;padding:1.5rem;margin-bottom:1.75rem;text-align:left">
-        <div style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text)">${snack.name}</div>
-        <div class="flex gap10">${lp(snack.level)}<span style="font-size:13px;color:var(--muted);font-weight:500">⏱ ${snack.est}</span><span style="font-size:13px;color:var(--muted);font-weight:500">📁 ${snack.category}</span></div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:10px;color:var(--text)">${snack.name}</div>
+        <div class="flex gap10">${lp(snack.level)}<span style="font-size:15px;color:var(--muted);font-weight:500">⏱ ${snack.est}</span><span style="font-size:15px;color:var(--muted);font-weight:500">📁 ${snack.category}</span></div>
       </div>`
-    :`<div style="background:var(--surface2);border-radius:12px;padding:1.5rem;margin-bottom:1.75rem;color:var(--dim);font-size:14px">All light tasks done! 🎉</div>`;
+    :`<div style="background:var(--surface2);border-radius:12px;padding:1.5rem;margin-bottom:1.75rem;color:var(--dim);font-size:16px">All light tasks done! 🎉</div>`;
   document.getElementById('snack-go-btn').style.display=snack?'':'none';
   openModal('snack-modal');
 }
@@ -1567,7 +1770,7 @@ Use the exact numeric IDs from the task list. reason max 8 words.`
     `${sorted.length} tasks sorted by what to do first`;
 
   document.getElementById('sort-modal-body').innerHTML = `
-    <div style="margin-bottom:1.25rem;padding:12px 14px;background:var(--accent-bg);border-radius:10px;border:1px solid var(--accent);font-size:13px;color:var(--accent);font-weight:600">
+    <div style="margin-bottom:1.25rem;padding:12px 14px;background:var(--accent-bg);border-radius:10px;border:1px solid var(--accent);font-size:15px;color:var(--accent);font-weight:600">
       💡 Based on your energy (${selectedFuel||'unknown'}) and urgency — start from the top!
     </div>
     <div id="sort-results">${resultHTML}</div>
@@ -1661,27 +1864,6 @@ function saveCustomMood(){
   closeModal('add-mood-modal');
   toast(`Mood "${name}" added 😊`);
 }
-
-/* ══ INIT ══ */
-(function initApp(){
-  const hadSavedData = loadState();
-  updatePomoDisplay();
-
-  // apply saved theme
-  if(isDark){
-    document.body.setAttribute('data-theme','dark');
-    document.getElementById('theme-btn').textContent='☀️ Light';
-    const mIcon=document.getElementById('mnav-theme-icon');
-    if(mIcon) mIcon.textContent='☀️';
-  }
-
-  // if we have saved tasks/mood, skip straight to the main screen
-  if(hadSavedData && selectedFuel && selectedMood){
-    showScreen('main');
-    updateLabels();
-    renderTables();
-  }
-})();
 
 /* ══ PWA: SERVICE WORKER + INSTALL PROMPT ══ */
 if('serviceWorker' in navigator){
