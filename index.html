@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TaskFlow</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b5bdb'/%3E%3Cstop offset='100%25' stop-color='%236d28d9'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' fill='white'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS LIGHT ── */
@@ -307,6 +308,53 @@ textarea.form-inp{resize:vertical;line-height:1.65}
 .loading-state{text-align:center;padding:3rem;color:var(--muted)}
 .loading-state .spin{font-size:40px;margin-bottom:12px;animation:pulse 1.2s ease infinite;display:block}
 
+/* ── SMART SORT BUTTON ── */
+.sort-btn{
+  display:flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,var(--accent),var(--purple));
+  color:#fff;border:none;border-radius:8px;
+  padding:6px 14px;font-size:12px;font-weight:700;
+  cursor:pointer;transition:opacity .15s,transform .12s,box-shadow .15s;
+  white-space:nowrap;box-shadow:0 2px 8px rgba(59,91,219,.3);
+}
+.sort-btn:hover{opacity:.88;transform:translateY(-1px);box-shadow:0 4px 14px rgba(59,91,219,.4)}
+.sort-btn:active{transform:scale(.96)}
+.sort-btn:disabled{opacity:.5;cursor:default;transform:none}
+.sort-btn.loading{animation:pulse 1s ease infinite}
+
+/* priority badge on rows */
+.priority-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  border-radius:50px;padding:2px 8px;font-size:11px;font-weight:800;
+  white-space:nowrap;
+}
+.priority-1{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+.priority-2{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+.priority-3{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.priority-4,.priority-5{background:var(--surface2);color:var(--dim);border:1px solid var(--border)}
+
+/* animated row highlight when sorted */
+@keyframes highlightRow{0%{background:var(--accent-bg)}100%{background:transparent}}
+.row-just-sorted{animation:highlightRow 1s ease forwards}
+
+/* sort modal */
+#sort-modal .sort-result-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;background:var(--surface2);
+  border-radius:10px;border:1px solid var(--border);
+  margin-bottom:8px;transition:border-color .15s;
+  animation:fadeUp .2s ease both;
+}
+#sort-modal .sort-result-item:hover{border-color:var(--accent)}
+#sort-modal .sort-num{
+  width:26px;height:26px;border-radius:50%;
+  background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;flex-shrink:0;
+}
+#sort-modal .sort-task-name{font-size:14px;font-weight:600;color:var(--text);flex:1}
+#sort-modal .sort-reason{font-size:12px;color:var(--muted);margin-top:2px}
+
 /* ── COLLAPSIBLE OTHER TASKS ── */
 #other-card .table-head:hover{background:var(--surface2)}
 #other-card .table-head:hover #other-chevron{color:var(--accent)}
@@ -516,6 +564,9 @@ textarea.form-inp{resize:vertical;line-height:1.65}
       <div class="table-head">
         <span class="table-title">Today Focus</span>
         <span class="count-badge" id="today-count">5</span>
+        <button class="sort-btn" id="smart-sort-btn" onclick="smartSort()" title="AI sorts your tasks by what to do first">
+          <span id="sort-btn-icon">✨</span> Smart Sort
+        </button>
         <input class="search-inp" placeholder="🔍 Search tasks…" oninput="filterTasks(this,'today')">
       </div>
       <table><thead><tr>
@@ -783,6 +834,22 @@ textarea.form-inp{resize:vertical;line-height:1.65}
   <button class="ctx-item" onclick="ctxNotForNow()">⏸ Not For Now</button>
   <div class="ctx-sep"></div>
   <button class="ctx-item danger" onclick="ctxDelete()">🗑 Delete</button>
+</div>
+
+<!-- ══ MODAL: SMART SORT ══ -->
+<div class="overlay hidden" id="sort-modal">
+  <div class="modal modal-wide">
+    <div class="modal-hdr">
+      <div class="modal-hdr-text">
+        <h2>✨ Smart Sort</h2>
+        <p id="sort-modal-sub">AI sorted your tasks by what to tackle first</p>
+      </div>
+      <button class="close-btn" onclick="closeModal('sort-modal')">✕</button>
+    </div>
+    <div id="sort-modal-body">
+      <div class="loading-state"><span class="spin">✨</span><p>Analyzing your tasks…</p></div>
+    </div>
+  </div>
 </div>
 
 <!-- ══ MOBILE FAB ══ -->
@@ -1338,6 +1405,138 @@ document.getElementById('capture-overlay').addEventListener('click',e=>{if(e.tar
 document.addEventListener('click',e=>{
   if(!e.target.closest('.dropdown-wrap')) document.querySelectorAll('.dropdown-menu').forEach(m=>m.classList.add('hidden'));
 });
+
+/* ══ SMART SORT ══ */
+async function smartSort(){
+  const btn = document.getElementById('smart-sort-btn');
+  const icon = document.getElementById('sort-btn-icon');
+  const todayTasks = tasks.filter(t => t.list === 'today' && t.status !== 'Done');
+
+  if(todayTasks.length === 0){
+    toast('No tasks to sort 🎉'); return;
+  }
+
+  // loading state
+  btn.disabled = true;
+  btn.classList.add('loading');
+  icon.textContent = '⏳';
+
+  // reset modal
+  document.getElementById('sort-modal-body').innerHTML =
+    '<div class="loading-state"><span class="spin">✨</span><p>Analyzing your tasks and figuring out what to do first…</p></div>';
+  openModal('sort-modal');
+
+  const taskList = todayTasks.map((t,i) =>
+    `${i+1}. "${t.name}" | Level: ${t.level} | Est: ${t.est} | Category: ${t.category} | Critical: ${t.critical}`
+  ).join('\n');
+
+  const fuelCtx = selectedFuel ? `User's energy level right now: ${selectedFuel}. Mood: ${selectedMood||'unknown'}.` : '';
+
+  let sorted = [];
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `You are helping someone with ADHD prioritize their tasks.
+${fuelCtx}
+Here are their tasks for today:
+${taskList}
+
+Sort them from most to least urgent/important. Consider:
+- Critical tasks come first
+- Heavy tasks: if energy is Low, push them down; if High, they can go early
+- Quick wins (Light, under 15min) help build momentum — put 1-2 near the top
+- Avoid putting too many Heavy tasks back-to-back
+
+Return ONLY a JSON array in this exact format:
+[{"id": ORIGINAL_TASK_ID, "priority": 1, "reason": "one short sentence why this is first"}]
+
+Use the exact numeric IDs from the task list. reason max 8 words.`
+        }]
+      })
+    });
+    const d = await r.json();
+    const raw = d.content?.[0]?.text?.replace(/\`\`\`json|\`\`\`/g,'').trim() || '[]';
+    sorted = JSON.parse(raw);
+  } catch(e) {
+    // fallback: sort by critical > heavy > medium > light
+    sorted = todayTasks
+      .sort((a,b) => {
+        if(a.critical && !b.critical) return -1;
+        if(!a.critical && b.critical) return 1;
+        const lvl = {Heavy:0, Medium:1, Light:2};
+        return (lvl[a.level]||2) - (lvl[b.level]||2);
+      })
+      .map((t,i) => ({id: t.id, priority: i+1, reason: i===0 ? 'Most urgent task' : i===todayTasks.length-1 ? 'Quick win to close the day' : 'Important next step'}));
+  }
+
+  // apply sort order to tasks array
+  const priorityMap = {};
+  sorted.forEach(s => { priorityMap[s.id] = s; });
+
+  tasks = tasks.sort((a,b) => {
+    const pa = priorityMap[a.id]?.priority ?? 99;
+    const pb = priorityMap[b.id]?.priority ?? 99;
+    return pa - pb;
+  });
+
+  // render result in modal
+  const priorityColors = ['priority-1','priority-1','priority-2','priority-2','priority-3','priority-4','priority-5'];
+  const priorityLabels = ['🔴 Do first','🔴 Urgent','🟡 Do next','🟡 Soon','🟢 Later','⚪ Low','⚪ Low'];
+
+  const resultHTML = sorted.map((s,i) => {
+    const t = tasks.find(x => x.id === s.id);
+    if(!t) return '';
+    const pClass = priorityColors[Math.min(i, priorityColors.length-1)];
+    const pLabel = priorityLabels[Math.min(i, priorityLabels.length-1)];
+    return `<div class="sort-result-item" style="animation-delay:${i*.05}s">
+      <div class="sort-num">${s.priority}</div>
+      <div style="flex:1">
+        <div class="sort-task-name">${t.critical?'🔥 ':''}${t.name}</div>
+        <div class="sort-reason">${s.reason}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${lp(t.level)}
+        <span class="priority-badge ${pClass}">${pLabel}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('sort-modal-sub').textContent =
+    `${sorted.length} tasks sorted by what to do first`;
+
+  document.getElementById('sort-modal-body').innerHTML = `
+    <div style="margin-bottom:1.25rem;padding:12px 14px;background:var(--accent-bg);border-radius:10px;border:1px solid var(--accent);font-size:13px;color:var(--accent);font-weight:600">
+      💡 Based on your energy (${selectedFuel||'unknown'}) and urgency — start from the top!
+    </div>
+    <div id="sort-results">${resultHTML}</div>
+    <div class="flex-end mt16">
+      <button class="btn-ghost" onclick="closeModal('sort-modal')">Cancel</button>
+      <button class="btn-primary" onclick="applySortOrder()">Apply this order ✓</button>
+    </div>`;
+
+  btn.disabled = false;
+  btn.classList.remove('loading');
+  icon.textContent = '✨';
+}
+
+function applySortOrder(){
+  closeModal('sort-modal');
+  renderTables();
+  // flash rows
+  setTimeout(() => {
+    document.querySelectorAll('#today-tbody tr').forEach((tr,i) => {
+      setTimeout(() => tr.classList.add('row-just-sorted'), i*60);
+      setTimeout(() => tr.classList.remove('row-just-sorted'), i*60+1000);
+    });
+  }, 100);
+  toast('Tasks sorted! Start from the top 🎯');
+}
 
 /* ══ COLLAPSIBLE OTHER TASKS ══ */
 let otherOpen = false;
