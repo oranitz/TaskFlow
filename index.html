@@ -103,6 +103,9 @@ tbody tr:nth-child(8){animation-delay:.24s}
 .auth-switch{text-align:center;font-size:15px;color:var(--muted);margin-top:1.5rem}
 .auth-switch button{background:none;border:none;color:var(--accent);font-weight:700;cursor:pointer;font-size:15px;padding:0 4px;font-family:inherit}
 .auth-switch button:hover{text-decoration:underline}
+.auth-guest{text-align:center;margin-top:1rem}
+.auth-guest button{background:none;border:none;color:var(--dim);font-size:13px;cursor:pointer;font-family:inherit;text-decoration:underline;padding:6px}
+.auth-guest button:hover{color:var(--muted)}
 
 /* ── WELCOME ── */
 #welcome{align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;background:var(--surface)}
@@ -549,6 +552,10 @@ textarea.form-inp{resize:vertical;line-height:1.65}
     <p class="auth-switch">
       <span id="auth-switch-text">Don't have an account?</span>
       <button onclick="toggleAuthMode()" id="auth-switch-btn">Sign up</button>
+    </p>
+
+    <p class="auth-guest">
+      <button onclick="continueAsGuest()">Continue without an account →</button>
     </p>
   </div>
 </div>
@@ -1141,6 +1148,10 @@ function signInWithGoogle(){
   // redirect flow is far more reliable than popup across browsers/PWAs/in-app webviews
   auth.signInWithRedirect(provider).catch(err=>showAuthError(friendlyAuthError(err)));
 }
+function continueAsGuest(){
+  hideAuthError();
+  auth.signInAnonymously().catch(err=>showAuthError(friendlyAuthError(err)));
+}
 function signOutUser(){
   // flush any pending debounced save FIRST, so nothing is lost before reload
   flushSaveNow().finally(()=>{
@@ -1193,7 +1204,10 @@ auth.onAuthStateChanged(async (user)=>{
 
     // show user email + sign out button in topbar
     const userLabel=document.getElementById('user-email-label');
-    if(userLabel) userLabel.textContent=user.email || user.displayName || 'Account';
+    if(userLabel) userLabel.textContent = user.isAnonymous ? '👤 Guest' : (user.email || user.displayName || 'Account');
+    if(user.isAnonymous){
+      toast('Using as guest — data stays on this device only', 3500);
+    }
   } else {
     currentUser=null;
     showScreen('auth');
