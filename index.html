@@ -2,8 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>TaskFlow</title>
+
+<!-- PWA: installable app support -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3b5bdb">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TaskFlow">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b5bdb'/%3E%3Cstop offset='100%25' stop-color='%236d28d9'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' fill='white'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&display=swap" rel="stylesheet">
 <style>
@@ -517,6 +527,7 @@ textarea.form-inp{resize:vertical;line-height:1.65}
       </div>
     </div>
     <div class="topbar-right">
+      <button class="theme-toggle" id="install-app-btn" onclick="installApp()" style="display:none;border-color:var(--accent);color:var(--accent)">⬇️ Install App</button>
       <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
       <button class="pill-btn pill-capture" onclick="openCapture()">⚡ Quick Capture</button>
       <button class="btn-primary" onclick="openAddTask()">+ Add Task</button>
@@ -596,6 +607,7 @@ textarea.form-inp{resize:vertical;line-height:1.65}
   <div class="bottom-bar">
     <button class="btn-ghost" onclick="openModal('finish-modal')">🏁 Finish my day</button>
     <button class="btn-ghost" onclick="openModal('sync-modal')">🔄 Sync tasks</button>
+    <button class="btn-ghost" onclick="clearSavedData()" style="margin-left:auto;color:var(--dim)">🗑 Reset all data</button>
   </div>
 </div>
 
@@ -923,6 +935,47 @@ let tasks=[
   {id:8,name:"Water your plants",status:"Not Started",est:"10m",level:"Light",category:"Home",date:"This week",critical:false,subtasks:[],list:"other"},
 ];
 
+/* ══ PERSISTENCE (localStorage) ══ */
+const STORAGE_KEY='taskflow_data_v1';
+
+function saveState(){
+  try{
+    const data={
+      tasks,
+      selectedFuel,
+      selectedMood,
+      isDark,
+      savedAt:Date.now()
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }catch(e){ console.warn('Could not save state', e); }
+}
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw) return false;
+    const data=JSON.parse(raw);
+    if(data.tasks && Array.isArray(data.tasks) && data.tasks.length>0){
+      tasks=data.tasks;
+    }
+    if(data.selectedFuel) selectedFuel=data.selectedFuel;
+    if(data.selectedMood) selectedMood=data.selectedMood;
+    if(typeof data.isDark==='boolean') isDark=data.isDark;
+    return true;
+  }catch(e){
+    console.warn('Could not load state', e);
+    return false;
+  }
+}
+
+function clearSavedData(){
+  if(confirm('Reset all tasks and start fresh? This cannot be undone.')){
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+}
+
 /* ══ TOAST ══ */
 function toast(msg,duration=2200){
   const t=document.getElementById('toast');
@@ -948,6 +1001,7 @@ function toggleTheme(){
   document.body.setAttribute('data-theme',isDark?'dark':'light');
   document.getElementById('theme-btn').textContent=isDark?'☀️ Light':'🌙 Dark';
   toast(isDark?'Dark mode on 🌙':'Light mode on ☀️');
+  saveState();
 }
 
 /* ══ NAVIGATION ══ */
@@ -959,7 +1013,7 @@ function showScreen(name){
 }
 function goWelcome(){showScreen('welcome');}
 function goMood(){showScreen('mood');}
-function goMain(){showScreen('main');updateLabels();renderTables();}
+function goMain(){showScreen('main');updateLabels();renderTables();saveState();}
 
 /* ══ MOOD/FUEL ══ */
 function selectFuel(btn,val){
@@ -1112,6 +1166,7 @@ function renderTables(){
   document.querySelectorAll('.stat-sel').forEach(sel=>{
     sel.addEventListener('change',function(){this.className='stat-sel '+scls(this.value);});
   });
+  saveState();
 }
 
 function toggleDone(id,checked){
@@ -1370,6 +1425,7 @@ function saveMoodUpdate(){
   updateLabels();
   closeModal('mood-modal');
   toast('Mood updated 😊');
+  saveState();
 }
 
 /* ══ SYNC ══ */
@@ -1607,7 +1663,62 @@ function saveCustomMood(){
 }
 
 /* ══ INIT ══ */
-updatePomoDisplay();
+(function initApp(){
+  const hadSavedData = loadState();
+  updatePomoDisplay();
+
+  // apply saved theme
+  if(isDark){
+    document.body.setAttribute('data-theme','dark');
+    document.getElementById('theme-btn').textContent='☀️ Light';
+    const mIcon=document.getElementById('mnav-theme-icon');
+    if(mIcon) mIcon.textContent='☀️';
+  }
+
+  // if we have saved tasks/mood, skip straight to the main screen
+  if(hadSavedData && selectedFuel && selectedMood){
+    showScreen('main');
+    updateLabels();
+    renderTables();
+  }
+})();
+
+/* ══ PWA: SERVICE WORKER + INSTALL PROMPT ══ */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW registration failed', e));
+  });
+}
+
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const btn = document.getElementById('install-app-btn');
+  if(btn) btn.style.display = 'flex';
+});
+
+function installApp(){
+  if(!deferredInstallPrompt){
+    toast('Already installed, or not supported here 🙂');
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then((choice) => {
+    if(choice.outcome === 'accepted'){
+      toast('Installing TaskFlow… 🎉');
+      document.getElementById('install-app-btn').style.display = 'none';
+    }
+    deferredInstallPrompt = null;
+  });
+}
+
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('install-app-btn');
+  if(btn) btn.style.display = 'none';
+  toast('TaskFlow installed! Find it on your desktop ⚡');
+});
+
 </script>
 </body>
 </html>
