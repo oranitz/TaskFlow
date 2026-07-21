@@ -221,12 +221,12 @@ tr.row-done td{opacity:.6}
 .stat-done      {background:var(--green-bg);color:var(--green);border-color:var(--green)}
 
 /* ── ROW ACTIONS ── */
-.row-actions{display:flex;gap:6px;align-items:center}
+.row-actions{display:flex;gap:6px;align-items:center;width:100%}
 .row-btn{background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:7px;padding:4px 10px;font-size:13px;cursor:pointer;font-weight:700;white-space:nowrap;transition:all .15s}
 .row-btn:hover{background:var(--accent-bg);color:var(--accent);border-color:var(--accent);transform:translateY(-1px)}
 .row-btn.accent{background:var(--accent-bg);color:var(--accent);border-color:var(--accent)}
-.ctx-btn{background:none;border:none;cursor:pointer;color:var(--dim);font-size:20px;padding:2px 6px;border-radius:6px;transition:background .15s,color .15s,transform .1s}
-.ctx-btn:hover{background:var(--surface2);color:var(--muted);transform:scale(1.15)}
+.ctx-btn{background:var(--surface2);border:1px solid var(--border);cursor:pointer;color:var(--muted);font-size:18px;font-weight:800;padding:4px 11px;border-radius:8px;transition:background .15s,color .15s,transform .1s,border-color .15s;margin-left:auto;line-height:1;flex-shrink:0}
+.ctx-btn:hover{background:var(--accent-bg);color:var(--accent);border-color:var(--accent);transform:scale(1.08)}
 .subtask-row td{background:var(--surface2)!important}
 .subtask-name{font-size:15px;color:var(--muted);font-weight:500}
 
