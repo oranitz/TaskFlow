@@ -1038,16 +1038,24 @@ function saveState(){
   if(!currentUser) return; // not signed in yet — nothing to save to
   clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{
-    const data={
-      tasks,
-      selectedFuel,
-      selectedMood,
-      isDark,
-      savedAt:Date.now()
-    };
-    db.collection('users').doc(currentUser.uid).set(data,{merge:true})
-      .catch(e=>console.warn('Could not save to Firestore', e));
+    flushSaveNow();
   },400); // debounce rapid changes
+}
+
+// Immediately writes current state to Firestore, bypassing the debounce.
+// Returns a Promise so callers (like sign-out) can wait for it to finish.
+function flushSaveNow(){
+  if(!currentUser) return Promise.resolve();
+  clearTimeout(saveTimer);
+  const data={
+    tasks,
+    selectedFuel,
+    selectedMood,
+    isDark,
+    savedAt:Date.now()
+  };
+  return db.collection('users').doc(currentUser.uid).set(data,{merge:true})
+    .catch(e=>{ console.warn('Could not save to Firestore', e); });
 }
 
 async function loadState(){
@@ -1134,7 +1142,10 @@ function signInWithGoogle(){
   auth.signInWithRedirect(provider).catch(err=>showAuthError(friendlyAuthError(err)));
 }
 function signOutUser(){
-  auth.signOut().then(()=>location.reload());
+  // flush any pending debounced save FIRST, so nothing is lost before reload
+  flushSaveNow().finally(()=>{
+    auth.signOut().then(()=>location.reload());
+  });
 }
 function friendlyAuthError(err){
   const map={
@@ -1225,8 +1236,22 @@ function showScreen(name){
   el.classList.add('active');
 }
 function goWelcome(){showScreen('welcome');}
-function goMood(){showScreen('mood');}
-function goMain(){showScreen('main');updateLabels();renderTables();saveState();}
+function goMood(){
+  showScreen('mood');
+  // restore any previously chosen fuel/mood so the buttons reflect real state
+  if(selectedFuel){
+    document.querySelectorAll('#fuel-grid .tag-btn').forEach(b=>{
+      b.classList.toggle('active', b.textContent.trim()===selectedFuel);
+    });
+  }
+  if(selectedMood){
+    document.querySelectorAll('#mood-grid .tag-btn').forEach(b=>{
+      b.classList.toggle('active', b.textContent.includes(selectedMood));
+    });
+  }
+  checkFlowBtn();
+}
+function goMain(){showScreen('main');updateLabels();renderTables();flushSaveNow();}
 
 /* ══ MOOD/FUEL ══ */
 function selectFuel(btn,val){
@@ -1638,7 +1663,7 @@ function saveMoodUpdate(){
   updateLabels();
   closeModal('mood-modal');
   toast('Mood updated 😊');
-  saveState();
+  flushSaveNow();
 }
 
 /* ══ SYNC ══ */
@@ -1662,7 +1687,7 @@ document.addEventListener('keydown',e=>{
     const v=document.getElementById('capture-inp').value.trim();
     if(v){
       tasks.push({id:Date.now(),name:v,level:'Light',est:'—',category:'Personal',date:'Today',status:'Not Started',subtasks:[],list:'today'});
-      if(currentScreen==='main') renderTables();
+      if(currentScreen==='main') renderTables(); else saveState();
       toast('Captured! ⚡');
     }
     ov.classList.add('hidden');
@@ -1857,6 +1882,7 @@ function saveCustomMood(){
   const name=document.getElementById('custom-mood-name').value.trim();
   if(!name) return;
   const label=`${emoji} ${name}`;
+  const safeName=name.replace(/'/g,"\\'"); // prevent breaking the onclick handler if name has an apostrophe
   const grid=document.getElementById(_addMoodTargetGrid);
   if(grid){
     // insert before the last "+ Add" button
@@ -1864,9 +1890,9 @@ function saveCustomMood(){
     const btn=document.createElement('button');
     btn.className='tag-btn anim-popin';
     if(_addMoodTargetGrid==='mood-grid'){
-      btn.setAttribute('onclick',`selectMood(this,'${name}')`);
+      btn.setAttribute('onclick',`selectMood(this,'${safeName}')`);
     } else {
-      btn.setAttribute('onclick',`selectMoodUpdate(this,'${name}')`);
+      btn.setAttribute('onclick',`selectMoodUpdate(this,'${safeName}')`);
     }
     btn.textContent=label;
     grid.insertBefore(btn,addBtn);
@@ -1874,6 +1900,11 @@ function saveCustomMood(){
   closeModal('add-mood-modal');
   toast(`Mood "${name}" added 😊`);
 }
+
+/* ══ SAFETY NET: flush any pending save if the tab is closing ══ */
+window.addEventListener('beforeunload', ()=>{
+  if(currentUser){ flushSaveNow(); } // best-effort; browsers don't guarantee async completion here
+});
 
 /* ══ PWA: SERVICE WORKER + INSTALL PROMPT ══ */
 if('serviceWorker' in navigator){
