@@ -1130,7 +1130,8 @@ function handleAuthSubmit(){
 function signInWithGoogle(){
   hideAuthError();
   const provider=new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(err=>showAuthError(friendlyAuthError(err)));
+  // redirect flow is far more reliable than popup across browsers/PWAs/in-app webviews
+  auth.signInWithRedirect(provider).catch(err=>showAuthError(friendlyAuthError(err)));
 }
 function signOutUser(){
   auth.signOut().then(()=>location.reload());
@@ -1148,6 +1149,15 @@ function friendlyAuthError(err){
   };
   return map[err.code] || err.message || 'Something went wrong. Please try again.';
 }
+
+/* ══ HANDLE GOOGLE REDIRECT RESULT (on page load, after returning from Google) ══ */
+auth.getRedirectResult().then((result)=>{
+  if(result && result.user){
+    toast('Signed in with Google! 🎉');
+  }
+}).catch((err)=>{
+  showAuthError(friendlyAuthError(err));
+});
 
 /* ══ AUTH STATE LISTENER — drives the whole app flow ══ */
 auth.onAuthStateChanged(async (user)=>{
